@@ -5,11 +5,11 @@ import { useTaskManager } from './useTaskManager'
 
 function App() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const { tasks, isLoading, addTask, updateTaskStatus, deleteTask } = useTaskManager()
+  const { tasks, idPrefix, setIdPrefix, nextId, isLoading, addTask, updateTaskStatus, deleteTask } = useTaskManager()
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-950 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-white mb-4">📝 タスク管理</h1>
           <p className="text-slate-400">読み込み中...</p>
@@ -19,7 +19,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-950 to-slate-900 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-12 text-center">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-3">
@@ -35,6 +35,7 @@ function App() {
               onTaskStatusChange={updateTaskStatus}
               onTaskDelete={deleteTask}
               onCreateTask={() => setIsCreateModalOpen(true)}
+              idPrefix={idPrefix}
             />
           </div>
         </div>
@@ -63,6 +64,9 @@ function App() {
                 onSubmitted={() => setIsCreateModalOpen(false)}
                 submitLabel="タスクを追加"
                 withCard={false}
+                idPrefix={idPrefix}
+                onIdPrefixChange={setIdPrefix}
+                nextId={nextId}
               />
             </div>
           </div>

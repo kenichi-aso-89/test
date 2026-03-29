@@ -1,0 +1,15 @@
+[submodule ".github/skill-sources/vercel-labs-skills"]
+	path = .github/skill-sources/vercel-labs-skills
+	url = https://github.com/vercel-labs/skills.git
+[submodule ".github/skill-sources/anthropics-skills"]
+	path = .github/skill-sources/anthropics-skills
+	url = https://github.com/anthropics/skills.git
+[submodule ".github/skill-sources/vercel-labs-agent-skills"]
+	path = .github/skill-sources/vercel-labs-agent-skills
+	url = https://github.com/vercel-labs/agent-skills.git
+[submodule ".github/skill-sources/browser-use"]
+	path = .github/skill-sources/browser-use
+	url = https://github.com/browser-use/browser-use.git
+[submodule ".github/skill-sources/sleekdotdesign-agent-skills"]
+	path = .github/skill-sources/sleekdotdesign-agent-skills
+	url = https://github.com/sleekdotdesign/agent-skills.git

@@ -17,6 +17,9 @@ interface TaskFormProps {
     onSubmitted?: () => void
     submitLabel?: string
     withCard?: boolean
+    idPrefix?: string
+    onIdPrefixChange?: (value: string) => void
+    nextId?: number
 }
 
 export function TaskForm({
@@ -24,6 +27,9 @@ export function TaskForm({
     onSubmitted,
     submitLabel = 'タスクを追加',
     withCard = true,
+    idPrefix,
+    onIdPrefixChange,
+    nextId,
 }: TaskFormProps) {
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
@@ -44,6 +50,26 @@ export function TaskForm({
 
     const formContent = (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {/* ID Prefix */}
+            {typeof idPrefix === 'string' && onIdPrefixChange && typeof nextId === 'number' && (
+                <div className="space-y-2 rounded-md border border-slate-700/80 bg-slate-900/30 p-3">
+                    <div className="text-xs font-medium text-slate-300">ID</div>
+                    <div className="text-sm text-slate-400">次のID: <span className="font-semibold text-emerald-300">{`${idPrefix}${nextId}`}</span></div>
+                    <div className="space-y-1">
+                        <Label htmlFor="idPrefix" className="text-slate-300">
+                            プレフィックス
+                        </Label>
+                        <Input
+                            id="idPrefix"
+                            value={idPrefix}
+                            onChange={(e) => onIdPrefixChange(e.target.value)}
+                            placeholder="例: MARKETINGJP-"
+                            className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                        />
+                    </div>
+                </div>
+            )}
+
             {/* Title Input */}
             <div className="space-y-2">
                 <Label htmlFor="title" className="text-slate-300">

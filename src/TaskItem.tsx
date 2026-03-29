@@ -1,4 +1,5 @@
 import { type Task, type TaskStatus } from './types'
+import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
@@ -14,11 +15,12 @@ interface TaskItemProps {
     task: Task
     onTaskStatusChange: (id: string, status: TaskStatus) => void
     onTaskDelete: (id: string) => void
+    idPrefix?: string
 }
 
 const statusOptions: TaskStatus[] = ['未着手', '進行中', '完了']
 
-export function TaskItem({ task, onTaskStatusChange, onTaskDelete }: TaskItemProps) {
+export function TaskItem({ task, onTaskStatusChange, onTaskDelete, idPrefix = '' }: TaskItemProps) {
     const formatDate = (dateString: string | undefined) => {
         if (!dateString) return '-'
         return new Date(dateString).toLocaleString('ja-JP', {
@@ -43,12 +45,14 @@ export function TaskItem({ task, onTaskStatusChange, onTaskDelete }: TaskItemPro
         }
     }
 
+    const displayId = /^\d+$/.test(task.id) ? `${idPrefix}${task.id}` : task.id
+
     return (
-        <Card className="border-slate-700 bg-slate-800 p-6 hover:border-slate-600 transition-colors">
+        <Card className="border-slate-600 bg-slate-800/95 p-6 shadow-[0_4px_16px_rgba(2,6,23,0.25)] hover:border-slate-500 transition-colors">
             {/* ID */}
             <div className="mb-4 flex items-start justify-between">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    ID: {task.id}
+                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    ID: {displayId}
                 </span>
                 <div className="flex gap-2">
                     <Badge variant="outline" className={`${getStatusColor(task.status)}`}>
@@ -65,11 +69,11 @@ export function TaskItem({ task, onTaskStatusChange, onTaskDelete }: TaskItemPro
 
             {/* Description */}
             {task.description && (
-                <p className="text-slate-300 text-sm mb-4">{task.description}</p>
+                <p className="text-slate-200 text-sm mb-4">{task.description}</p>
             )}
 
             {/* Dates */}
-            <div className="text-xs text-slate-400 space-y-1 mb-6">
+            <div className="text-xs text-slate-300 space-y-1 mb-6">
                 <div>作成: {formatDate(task.createdAt)}</div>
                 {task.completedAt && (
                     <div>完了: {formatDate(task.completedAt)}</div>
@@ -99,9 +103,10 @@ export function TaskItem({ task, onTaskStatusChange, onTaskDelete }: TaskItemPro
                     variant="destructive"
                     size="sm"
                     onClick={() => onTaskDelete(task.id)}
-                    className="bg-red-500 hover:bg-red-600"
+                    className="bg-transparent text-white border border-white/40 hover:bg-white/10 hover:text-white"
+                    aria-label="タスクを削除"
                 >
-                    ✕
+                    <Trash2 className="h-[1.2rem] w-[1.2rem]" />
                 </Button>
             </div>
         </Card>
