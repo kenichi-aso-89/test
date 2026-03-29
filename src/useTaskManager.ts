@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { type Task, type TaskStatus, type WorkType } from './types'
+import { type Task, type TaskStatus, type WorkType, type TaskTag, type TaskSection } from './types'
 
 const STORAGE_KEY = 'tasks'
 const ID_PREFIX_STORAGE_KEY = 'task_id_prefix'
@@ -26,13 +26,30 @@ const getNextUniqueId = (start: number, tasks: Task[]): number => {
     return candidate
 }
 
+function migrateTask(raw: Record<string, unknown>): Task {
+    return {
+        id: (raw.id as string) ?? '0',
+        title: (raw.title as string) ?? '',
+        description: (raw.description as string) ?? '',
+        status: (raw.status as TaskStatus) ?? '未着手',
+        workType: (raw.workType as WorkType) ?? 'コード生成',
+        createdAt: (raw.createdAt as string) ?? new Date().toISOString(),
+        completedAt: raw.completedAt as string | undefined,
+        tags: (raw.tags as TaskTag[]) ?? [],
+        starred: (raw.starred as boolean) ?? false,
+        estimatedMinutes: (raw.estimatedMinutes as number | null) ?? null,
+        scheduledStart: (raw.scheduledStart as string | null) ?? null,
+        scheduledEnd: (raw.scheduledEnd as string | null) ?? null,
+        section: (raw.section as TaskSection) ?? '終日',
+    }
+}
+
 export function useTaskManager() {
     const [tasks, setTasks] = useState<Task[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [nextId, setNextId] = useState(1)
     const [idPrefix, setIdPrefix] = useState(DEFAULT_ID_PREFIX)
 
-    // ローカルストレージから読み込み
     useEffect(() => {
         try {
             const stored = localStorage.getItem(STORAGE_KEY)
@@ -43,8 +60,9 @@ export function useTaskManager() {
             }
 
             if (stored) {
-                const parsedTasks = JSON.parse(stored)
-                const normalizedTasks = normalizeTaskIds(parsedTasks)
+                const parsedTasks = JSON.parse(stored) as Record<string, unknown>[]
+                const migratedTasks = parsedTasks.map(migrateTask)
+                const normalizedTasks = normalizeTaskIds(migratedTasks)
                 setTasks(normalizedTasks)
                 const maxId = normalizedTasks.reduce((max: number, task: Task) => Math.max(max, extractNumericId(task.id)), 0)
                 setNextId(maxId + 1)
@@ -56,7 +74,6 @@ export function useTaskManager() {
         }
     }, [])
 
-    // ローカルストレージに保存
     useEffect(() => {
         if (!isLoading) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks))
@@ -64,7 +81,17 @@ export function useTaskManager() {
         }
     }, [tasks, idPrefix, isLoading])
 
-    const addTask = (title: string, description: string, status: TaskStatus, workType: WorkType) => {
+    const addTask = (
+        title: string,
+        description: string,
+        status: TaskStatus,
+        workType: WorkType,
+        tags: TaskTag[] = [],
+        estimatedMinutes: number | null = null,
+        scheduledStart: string | null = null,
+        scheduledEnd: string | null = null,
+        section: TaskSection = '終日',
+    ) => {
         const uniqueId = getNextUniqueId(nextId, tasks)
         const newTask: Task = {
             id: uniqueId.toString(),
@@ -73,23 +100,37 @@ export function useTaskManager() {
             status,
             workType,
             createdAt: new Date().toISOString(),
+            tags,
+            starred: false,
+            estimatedMinutes,
+            scheduledStart,
+            scheduledEnd,
+            section,
         }
         setTasks((prevTasks) => [newTask, ...prevTasks])
         setNextId(uniqueId + 1)
     }
 
-    const updateTaskStatus = (id: string, status: TaskStatus) => {
-        setTasks(
-            tasks.map((task) =>
-                task.id === id
-                    ? {
-                        ...task,
-                        status,
-                        completedAt: status === '完了' ? new Date().toISOString() : undefined,
-                    }
-                    : task
+    const updateTask = (id: string, updates: Partial<Task>) => {
+        setTasks((prev) =>
+            prev.map((task) =>
+                task.id === id ? { ...task, ...updates } : task
             )
         )
+    }
+
+    const updateTaskStatus = (id: string, status: TaskStatus) => {
+        updateTask(id, {
+            status,
+            completedAt: status === '完了' ? new Date().toISOString() : undefined,
+        })
+    }
+
+    const toggleStar = (id: string) => {
+        const task = tasks.find((t) => t.id === id)
+        if (task) {
+            updateTask(id, { starred: !task.starred })
+        }
     }
 
     const deleteTask = (id: string) => {
@@ -103,7 +144,9 @@ export function useTaskManager() {
         nextId,
         isLoading,
         addTask,
+        updateTask,
         updateTaskStatus,
+        toggleStar,
         deleteTask,
     }
 }
