@@ -121,8 +121,8 @@
   }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(99, 140, 255, 0.15); border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(99, 140, 255, 0.35); }
+  ::-webkit-scrollbar-thumb { background: rgba(160, 170, 180, 0.2); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(160, 170, 180, 0.4); }
 }
 
 @keyframes fadeInUp {
@@ -181,7 +181,7 @@
   font-style: italic;
   font-weight: 400;
   font-size: clamp(2.8rem, 6vw, 4.2rem);
-  color: #dde8ff;
+  color: #e8f0ff;
   letter-spacing: -0.025em;
   line-height: 1.05;
   margin-bottom: 10px;
@@ -189,7 +189,7 @@
 
 .app-subtitle {
   font-size: 0.62rem;
-  color: #263448;
+  color: #485966;
   letter-spacing: 0.28em;
   text-transform: uppercase;
 }
@@ -234,7 +234,7 @@
 
 .stat-label {
   font-size: 0.58rem;
-  color: #2e3f55;
+  color: #5a6f85;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   margin-top: 4px;
@@ -243,10 +243,10 @@
 /* ── Add Task Button ─────────────────────────────── */
 .add-task-btn {
   padding: 9px 22px;
-  background: linear-gradient(135deg, #1a3470 0%, #1d3f8a 100%);
-  border: 1px solid rgba(99, 140, 255, 0.25);
+  background: linear-gradient(135deg, #3a4a5a 0%, #42525f 100%);
+  border: 1px solid rgba(200, 210, 220, 0.25);
   border-radius: 9px;
-  color: #7aabff;
+  color: #c8d8f0;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -257,10 +257,10 @@
 }
 
 .add-task-btn:hover {
-  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-  color: #c0d4ff;
-  border-color: rgba(99, 140, 255, 0.5);
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.25);
+  background: linear-gradient(135deg, #4a5a6a 0%, #5a6a78 100%);
+  color: #e8f0ff;
+  border-color: rgba(200, 210, 220, 0.5);
+  box-shadow: 0 4px 20px rgba(150, 160, 170, 0.15);
 }
 
 /* ── Board Grid ──────────────────────────────────── */
@@ -300,7 +300,7 @@
 .column-title {
   font-size: 0.62rem;
   font-weight: 600;
-  color: #4a5f7a;
+  color: #7a8a9a;
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
@@ -388,30 +388,31 @@
 }
 
 .task-status-text {
-  font-size: 0.65rem;
-  color: #3d5068;
+  font-size: 0.68rem;
+  color: #8a9aaa;
   letter-spacing: 0.04em;
+  font-weight: 500;
 }
 
 .task-title {
-  font-size: 0.92rem;
+  font-size: 1.08rem;
   font-weight: 600;
-  color: #cdd8f0;
+  color: #e8f0ff;
   line-height: 1.45;
   letter-spacing: -0.01em;
   margin-bottom: 6px;
 }
 
 .task-description {
-  font-size: 0.78rem;
-  color: #3d5068;
+  font-size: 0.82rem;
+  color: #7a90a8;
   line-height: 1.55;
   margin-bottom: 12px;
 }
 
 .task-date {
-  font-size: 0.65rem;
-  color: #283848;
+  font-size: 0.68rem;
+  color: #6a7a88;
   margin-bottom: 14px;
   letter-spacing: 0.02em;
 }
@@ -436,27 +437,28 @@
   height: 30px;
   flex-shrink: 0;
   background: transparent;
-  border: 1px solid rgba(255, 80, 80, 0.14);
+  border: 1px solid rgba(200, 210, 220, 0.25);
   border-radius: 7px;
-  color: rgba(248, 113, 113, 0.4);
+  color: #a0b0c0;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .delete-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: rgb(248, 113, 113);
-  border-color: rgba(248, 113, 113, 0.4);
+  background: rgba(200, 210, 220, 0.15);
+  color: #e8f0ff;
+  border-color: rgba(200, 210, 220, 0.5);
 }
 
 /* ── Select Override ─────────────────────────────── */
 .task-select-trigger {
-  background: rgba(255, 255, 255, 0.035) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #6a8099 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(200, 210, 220, 0.3) !important;
+  color: #d0dae8 !important;
   font-size: 0.75rem !important;
   height: 30px !important;
   border-radius: 7px !important;
+  font-weight: 500 !important;
 }
 
 /* ── Modal ───────────────────────────────────────── */
@@ -503,9 +505,9 @@
 }
 
 .modal-close-btn {
-  color: #324050;
+  color: #8a9aaa;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(200, 210, 220, 0.25);
   border-radius: 7px;
   padding: 4px 12px;
   cursor: pointer;
@@ -513,11 +515,12 @@
   letter-spacing: 0.02em;
   transition: color 0.15s, border-color 0.15s;
   font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
 }
 
 .modal-close-btn:hover {
-  color: #7a90a8;
-  border-color: rgba(255, 255, 255, 0.18);
+  color: #d0dae8;
+  border-color: rgba(200, 210, 220, 0.5);
 }
 
 /* ── Form ────────────────────────────────────────── */
@@ -531,8 +534,8 @@
 
 .form-label {
   font-size: 0.62rem;
-  font-weight: 500;
-  color: #3a4f68;
+  font-weight: 600;
+  color: #7a90a8;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   display: block;
@@ -548,34 +551,35 @@
 }
 
 .form-input {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #b8ccec !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(200, 210, 220, 0.25) !important;
+  color: #e0e8f0 !important;
   font-size: 0.85rem !important;
   border-radius: 8px !important;
   transition: border-color 0.15s !important;
 }
 
 .form-input:focus {
-  border-color: rgba(99, 140, 255, 0.35) !important;
+  border-color: rgba(200, 210, 220, 0.5) !important;
   outline: none !important;
 }
 
 .form-select-trigger {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #7090b0 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(200, 210, 220, 0.25) !important;
+  color: #d0dae8 !important;
   font-size: 0.85rem !important;
   border-radius: 8px !important;
+  font-weight: 500 !important;
 }
 
 .form-submit-btn {
   width: 100%;
   padding: 10px;
-  background: linear-gradient(135deg, #1a3470 0%, #1d3f8a 100%);
-  border: 1px solid rgba(99, 140, 255, 0.25);
+  background: linear-gradient(135deg, #3a4a5a 0%, #42525f 100%);
+  border: 1px solid rgba(200, 210, 220, 0.25);
   border-radius: 9px;
-  color: #7aabff;
+  color: #d0dae8;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -586,9 +590,9 @@
 }
 
 .form-submit-btn:hover {
-  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-  color: #c0d4ff;
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+  background: linear-gradient(135deg, #4a5a6a 0%, #5a6a78 100%);
+  color: #e8f0ff;
+  box-shadow: 0 4px 20px rgba(150, 160, 170, 0.15);
 }
 
 /* ── Empty state ─────────────────────────────────── */

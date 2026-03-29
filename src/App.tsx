@@ -45,8 +45,8 @@ function App() {
       <div className="app-content">
         {/* Header */}
         <header className="app-header">
-          <h1 className="app-title">タスク管理</h1>
-          <p className="app-subtitle">Task Management System</p>
+          <h1 className="app-title">Task Board</h1>
+          <p className="app-subtitle">Smart Task Management</p>
         </header>
 
         <TaskList
