@@ -13,6 +13,7 @@ interface TaskRowProps {
     onTaskStatusChange: (id: string, status: TaskStatus) => void
     onTaskDelete: (id: string) => void
     onToggleStar: (id: string) => void
+    onTaskClick: (task: Task) => void
     idPrefix: string
 }
 
@@ -22,7 +23,7 @@ const statusDot: Record<TaskStatus, string> = {
     '完了': '#10b981',
 }
 
-export function TaskRow({ task, onTaskStatusChange, onTaskDelete, onToggleStar, idPrefix }: TaskRowProps) {
+export function TaskRow({ task, onTaskStatusChange, onTaskDelete, onToggleStar, onTaskClick, idPrefix }: TaskRowProps) {
     const displayId = /^\d+$/.test(task.id) ? `${idPrefix}${task.id}` : task.id
     const dotColor = statusDot[task.status]
 
@@ -33,7 +34,13 @@ export function TaskRow({ task, onTaskStatusChange, onTaskDelete, onToggleStar, 
                 style={{ background: dotColor }}
             />
 
-            <span className="task-row-title">{task.title}</span>
+            <button
+                className="task-row-title-btn"
+                onClick={() => onTaskClick(task)}
+                type="button"
+            >
+                <span className="task-row-title">{task.title}</span>
+            </button>
 
             {task.tags.length > 0 && (
                 <span className="task-row-tags">

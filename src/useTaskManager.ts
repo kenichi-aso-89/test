@@ -41,6 +41,7 @@ function migrateTask(raw: Record<string, unknown>): Task {
         scheduledStart: (raw.scheduledStart as string | null) ?? null,
         scheduledEnd: (raw.scheduledEnd as string | null) ?? null,
         section: (raw.section as TaskSection) ?? '終日',
+        memos: (raw.memos as any[]) ?? [],
     }
 }
 
@@ -106,6 +107,7 @@ export function useTaskManager() {
             scheduledStart,
             scheduledEnd,
             section,
+            memos: [],
         }
         setTasks((prevTasks) => [newTask, ...prevTasks])
         setNextId(uniqueId + 1)
@@ -162,6 +164,7 @@ export function useTaskManager() {
                     scheduledStart: input.scheduledStart ?? null,
                     scheduledEnd: input.scheduledEnd ?? null,
                     section: input.section ?? '終日',
+                    memos: [],
                 }
                 currentId++
                 return task
@@ -169,6 +172,28 @@ export function useTaskManager() {
             setNextId(currentId)
             return [...newTasks, ...prevTasks]
         })
+    }
+
+    const addMemo = (taskId: string, text: string) => {
+        updateTask(taskId, {
+            memos: [
+                ...(tasks.find((t) => t.id === taskId)?.memos ?? []),
+                {
+                    id: Date.now().toString(),
+                    text,
+                    createdAt: new Date().toISOString(),
+                }
+            ]
+        })
+    }
+
+    const removeMemo = (taskId: string, memoId: string) => {
+        const task = tasks.find((t) => t.id === taskId)
+        if (task) {
+            updateTask(taskId, {
+                memos: task.memos.filter((m) => m.id !== memoId)
+            })
+        }
     }
 
     const deleteTask = (id: string) => {
@@ -186,6 +211,8 @@ export function useTaskManager() {
         updateTask,
         updateTaskStatus,
         toggleStar,
+        addMemo,
+        removeMemo,
         deleteTask,
     }
 }

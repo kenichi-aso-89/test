@@ -10,6 +10,7 @@ interface TaskSectionGroupProps {
     onTaskStatusChange: (id: string, status: TaskStatus) => void
     onTaskDelete: (id: string) => void
     onToggleStar: (id: string) => void
+    onTaskClick: (task: Task) => void
     idPrefix: string
 }
 
@@ -21,6 +22,7 @@ export function TaskSectionGroup({
     onTaskStatusChange,
     onTaskDelete,
     onToggleStar,
+    onTaskClick,
     idPrefix,
 }: TaskSectionGroupProps) {
     const totalMinutes = tasks.reduce((sum, t) => sum + (t.estimatedMinutes ?? 0), 0)
@@ -53,6 +55,7 @@ export function TaskSectionGroup({
                                 onTaskStatusChange={onTaskStatusChange}
                                 onTaskDelete={onTaskDelete}
                                 onToggleStar={onToggleStar}
+                                onTaskClick={onTaskClick}
                                 idPrefix={idPrefix}
                             />
                         ))

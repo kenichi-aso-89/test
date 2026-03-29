@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Search, Plus, Upload } from 'lucide-react'
+import { Search, Plus, Upload, Link2 } from 'lucide-react'
 import { type TaskTag, type TaskStatus, type WorkType, type TaskSection } from './types'
 import { Input } from '@/components/ui/input'
 import {
@@ -133,6 +133,40 @@ function parseCsv(text: string) {
     return { tasks, errors }
 }
 
+function toGoogleSheetsCsvUrl(input: string): string | null {
+    const trimmed = input.trim()
+    if (!trimmed) return null
+
+    let parsed: URL
+    try {
+        parsed = new URL(trimmed)
+    } catch {
+        return null
+    }
+
+    if (!parsed.hostname.includes('docs.google.com')) {
+        return trimmed.toLowerCase().endsWith('.csv') ? trimmed : null
+    }
+
+    const idMatch = parsed.pathname.match(/\/spreadsheets\/d\/([^/]+)/)
+    if (!idMatch) {
+        return null
+    }
+
+    const spreadsheetId = idMatch[1]
+    const gidFromQuery = parsed.searchParams.get('gid')
+    const gidFromHash = parsed.hash.match(/gid=(\d+)/)?.[1] ?? null
+    const gid = gidFromQuery ?? gidFromHash
+
+    const exportUrl = new URL(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/export`)
+    exportUrl.searchParams.set('format', 'csv')
+    if (gid) {
+        exportUrl.searchParams.set('gid', gid)
+    }
+
+    return exportUrl.toString()
+}
+
 export function Toolbar({
     searchQuery,
     onSearchChange,
@@ -145,6 +179,9 @@ export function Toolbar({
 }: ToolbarProps) {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [importMessage, setImportMessage] = useState<string | null>(null)
+    const [isImportingFromUrl, setIsImportingFromUrl] = useState(false)
+    const [isSheetsPanelOpen, setIsSheetsPanelOpen] = useState(false)
+    const [sheetsUrl, setSheetsUrl] = useState('')
 
     const today = new Date().toLocaleDateString('ja-JP', {
         year: 'numeric',
@@ -177,6 +214,49 @@ export function Toolbar({
         reader.readAsText(file, 'utf-8')
 
         e.target.value = ''
+    }
+
+    const handleImportFromGoogleSheets = async (raw: string) => {
+        const csvUrl = toGoogleSheetsCsvUrl(raw)
+        if (!csvUrl) {
+            setImportMessage('URL形式が不正です。Google Sheetsの共有URLを指定してください')
+            setTimeout(() => setImportMessage(null), 3000)
+            return
+        }
+
+        setIsImportingFromUrl(true)
+        try {
+            const response = await fetch(csvUrl)
+            if (!response.ok) {
+                setImportMessage('シートの取得に失敗しました（公開設定を確認してください）')
+                setTimeout(() => setImportMessage(null), 3500)
+                return
+            }
+
+            const text = await response.text()
+            const { tasks, errors } = parseCsv(text)
+
+            if (tasks.length > 0) {
+                onImportCsv(tasks)
+                setImportMessage(`${tasks.length}件のタスクをGoogle Sheetsから追加しました`)
+                setIsSheetsPanelOpen(false)
+                setSheetsUrl('')
+            } else {
+                setImportMessage('取り込めるタスクがありません（列名を確認してください）')
+            }
+
+            if (errors.length > 0) {
+                console.warn('Google Sheets import warnings:', errors)
+            }
+
+            setTimeout(() => setImportMessage(null), 3500)
+        } catch (error) {
+            console.error('Failed to import Google Sheets:', error)
+            setImportMessage('取得に失敗しました。ネットワークまたは公開設定を確認してください')
+            setTimeout(() => setImportMessage(null), 3500)
+        } finally {
+            setIsImportingFromUrl(false)
+        }
     }
 
     return (
@@ -247,11 +327,51 @@ export function Toolbar({
                     <span>CSV</span>
                 </button>
 
+                <button
+                    className="toolbar-import-btn"
+                    onClick={() => setIsSheetsPanelOpen((prev) => !prev)}
+                    title="Google Sheetsから取り込み"
+                >
+                    <Link2 size={14} />
+                    <span>Sheets</span>
+                </button>
+
                 <button className="toolbar-add-btn" onClick={onCreateTask}>
                     <Plus size={15} />
                     <span>追加</span>
                 </button>
             </div>
+
+            {isSheetsPanelOpen && (
+                <div className="toolbar-sheets-panel" role="dialog" aria-label="Google Sheets URL入力">
+                    <Input
+                        placeholder="Google Sheetsの共有URLを貼り付け"
+                        value={sheetsUrl}
+                        onChange={(e) => setSheetsUrl(e.target.value)}
+                        className="toolbar-sheets-input"
+                    />
+                    <div className="toolbar-sheets-actions">
+                        <button
+                            className="toolbar-import-btn"
+                            onClick={() => {
+                                setIsSheetsPanelOpen(false)
+                                setSheetsUrl('')
+                            }}
+                            type="button"
+                        >
+                            キャンセル
+                        </button>
+                        <button
+                            className="toolbar-add-btn"
+                            onClick={() => { void handleImportFromGoogleSheets(sheetsUrl) }}
+                            disabled={isImportingFromUrl || !sheetsUrl.trim()}
+                            type="button"
+                        >
+                            {isImportingFromUrl ? '取込中...' : 'URLから追加'}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

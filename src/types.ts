@@ -4,6 +4,12 @@ export type TaskTag = 'Mail' | 'Office' | 'Meeting' | 'PC' | 'Home'
 export type TaskSection = '午前' | '午後' | '終日'
 export type SidebarView = 'today' | 'starred' | 'incomplete'
 
+export interface TaskMemo {
+    id: string
+    text: string
+    createdAt: string
+}
+
 export interface Task {
     id: string
     title: string
@@ -18,4 +24,5 @@ export interface Task {
     scheduledStart: string | null
     scheduledEnd: string | null
     section: TaskSection
+    memos: TaskMemo[]
 }

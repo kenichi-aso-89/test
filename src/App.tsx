@@ -4,12 +4,14 @@ import { Sidebar } from './Sidebar'
 import { Toolbar } from './Toolbar'
 import { TaskSectionGroup } from './TaskSectionGroup'
 import { TaskForm } from './TaskForm'
+import { TaskDetailModal } from './TaskDetailModal'
 import { useTaskManager } from './useTaskManager'
 
 const sections: TaskSection[] = ['午前', '午後', '終日']
 
 function App() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
     const [activeView, setActiveView] = useState<SidebarView>('today')
     const [searchQuery, setSearchQuery] = useState('')
     const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all')
@@ -18,8 +20,10 @@ function App() {
 
     const {
         tasks, idPrefix, setIdPrefix, nextId, isLoading,
-        addTask, addTasksBulk, updateTaskStatus, toggleStar, deleteTask,
+        addTask, addTasksBulk, updateTaskStatus, toggleStar, addMemo, removeMemo, deleteTask,
     } = useTaskManager()
+
+    const selectedTask = tasks.find((t) => t.id === selectedTaskId) ?? null
 
     const filteredTasks = useMemo(() => {
         let result = tasks
@@ -102,6 +106,7 @@ function App() {
                                 onTaskStatusChange={updateTaskStatus}
                                 onTaskDelete={deleteTask}
                                 onToggleStar={toggleStar}
+                                onTaskClick={(task) => setSelectedTaskId(task.id)}
                                 idPrefix={idPrefix}
                             />
                         )
@@ -144,6 +149,17 @@ function App() {
                         />
                     </div>
                 </div>
+            )}
+
+            {selectedTask && (
+                <TaskDetailModal
+                    task={selectedTask}
+                    onClose={() => setSelectedTaskId(null)}
+                    onTaskStatusChange={updateTaskStatus}
+                    onAddMemo={addMemo}
+                    onRemoveMemo={removeMemo}
+                    idPrefix={idPrefix}
+                />
             )}
         </div>
     )
