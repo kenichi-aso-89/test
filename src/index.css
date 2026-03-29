@@ -1037,6 +1037,8 @@
 }
 
 .detail-textarea {
+  width: 100%;
+  min-height: 100px;
   background: #1e1e1e !important;
   border: 1px solid #404040 !important;
   color: #d4d4d4 !important;
@@ -1046,6 +1048,7 @@
   font-family: 'Noto Sans JP', system-ui, sans-serif !important;
   resize: vertical;
   line-height: 1.4;
+  box-sizing: border-box;
 }
 
 .detail-textarea:focus {
@@ -1057,6 +1060,25 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.detail-tags-input {
+  width: 100%;
+  background: #1e1e1e !important;
+  border: 1px solid #404040 !important;
+  color: #d4d4d4 !important;
+  font-size: 0.8rem !important;
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+  font-family: 'Noto Sans JP', system-ui, sans-serif !important;
+  box-sizing: border-box;
+  height: 32px;
+  line-height: 1.4;
+}
+
+.detail-tags-input:focus {
+  border-color: #606060 !important;
+  outline: none !important;
 }
 
 .detail-add-memo-btn {

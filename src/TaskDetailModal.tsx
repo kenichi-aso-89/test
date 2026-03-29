@@ -214,11 +214,12 @@ export function TaskDetailModal({
                     <section className="detail-section">
                         <h3 className="detail-section-title">タグ</h3>
                         <div className="detail-tags-input-wrapper">
-                            <Input
+                            <input
+                                type="text"
                                 value={tagsString}
                                 onChange={(e) => handleTagsChange(e.target.value)}
                                 placeholder="タグをセミコロン区切りで入力（Mail, Office, Meeting, PC, Home）"
-                                className="detail-input"
+                                className="detail-tags-input"
                             />
                             {task.tags.length > 0 && (
                                 <div className="detail-tags">
