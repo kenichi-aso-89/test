@@ -37,8 +37,22 @@ export function TaskDetailModal({
         }
     }
 
-    const createdDate = new Date(task.createdAt).toLocaleDateString('ja-JP')
-    const completedDate = task.completedAt ? new Date(task.completedAt).toLocaleDateString('ja-JP') : null
+    const handleRemoveMemo = (memoId: string) => {
+        if (confirm('このメモを削除してもよろしいですか？')) {
+            onRemoveMemo(task.id, memoId)
+        }
+    }
+
+    const createdDate = new Date(task.createdAt).toLocaleString('ja-JP', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    })
+    const completedDate = task.completedAt ? new Date(task.completedAt).toLocaleString('ja-JP', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }) : null
 
     return (
         <div
@@ -194,7 +208,7 @@ export function TaskDetailModal({
                                                 <span className="detail-memo-time">{dateStr} {memoTime}</span>
                                                 <button
                                                     className="detail-memo-delete"
-                                                    onClick={() => onRemoveMemo(task.id, memo.id)}
+                                                    onClick={() => handleRemoveMemo(memo.id)}
                                                     type="button"
                                                 >
                                                     <Trash2 size={12} />

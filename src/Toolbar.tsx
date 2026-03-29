@@ -69,7 +69,12 @@ function parseCsvLine(line: string): string[] {
 }
 
 function parseCsv(text: string) {
-    const lines = text.split(/\r?\n/).filter((l) => l.trim())
+    const allLines = text.split(/\r?\n/)
+    const lines = allLines.filter((l) => {
+        const trimmed = l.trim()
+        return trimmed.length > 0
+    })
+    
     if (lines.length < 2) return { tasks: [], errors: ['ヘッダーとデータが必要です'] }
 
     const header = parseCsvLine(lines[0]).map((h) => h.toLowerCase().trim())
@@ -90,20 +95,31 @@ function parseCsv(text: string) {
         tags?: TaskTag[]; estimatedMinutes?: number | null
         scheduledStart?: string | null; scheduledEnd?: string | null; section?: TaskSection
     }> = []
-    const errors: string[] = []
+    const errors: Array<{ row: number; message: string }> = []
 
     for (let i = 1; i < lines.length; i++) {
         const cols = parseCsvLine(lines[i])
         const title = cols[titleIdx]?.trim()
-        if (!title) { errors.push(`${i + 1}行目: タイトルが空です`); continue }
+        if (!title) { 
+            errors.push({ row: i + 1, message: 'タイトルが空です' })
+            continue 
+        }
 
         const rawStatus = statusIdx >= 0 ? cols[statusIdx]?.trim() : ''
         const status: TaskStatus = validStatuses.includes(rawStatus as TaskStatus)
             ? rawStatus as TaskStatus : '未着手'
+        
+        if (rawStatus && !validStatuses.includes(rawStatus as TaskStatus)) {
+            errors.push({ row: i + 1, message: `無効なステータス: "${rawStatus}" → "未着手"に自動変換` })
+        }
 
         const rawWorkType = workTypeIdx >= 0 ? cols[workTypeIdx]?.trim() : ''
         const workType: WorkType = validWorkTypes.includes(rawWorkType as WorkType)
             ? rawWorkType as WorkType : 'コード生成'
+        
+        if (rawWorkType && !validWorkTypes.includes(rawWorkType as WorkType)) {
+            errors.push({ row: i + 1, message: `無効な作業内容: "${rawWorkType}" → "コード生成"に自動変換` })
+        }
 
         const rawTags = tagsIdx >= 0 ? cols[tagsIdx]?.trim() : ''
         const tags: TaskTag[] = rawTags
@@ -112,10 +128,18 @@ function parseCsv(text: string) {
 
         const rawMinutes = minutesIdx >= 0 ? cols[minutesIdx]?.trim() : ''
         const estimatedMinutes = rawMinutes ? parseInt(rawMinutes, 10) || null : null
+        
+        if (rawMinutes && isNaN(parseInt(rawMinutes, 10))) {
+            errors.push({ row: i + 1, message: `無効な見積時間: "${rawMinutes}" → スキップ` })
+        }
 
         const rawSection = sectionIdx >= 0 ? cols[sectionIdx]?.trim() : ''
         const section: TaskSection = validSections.includes(rawSection as TaskSection)
             ? rawSection as TaskSection : '終日'
+        
+        if (rawSection && !validSections.includes(rawSection as TaskSection)) {
+            errors.push({ row: i + 1, message: `無効なセクション: "${rawSection}" → "終日"に自動変換` })
+        }
 
         tasks.push({
             title,
@@ -227,32 +251,39 @@ export function Toolbar({
         setIsImportingFromUrl(true)
         try {
             const response = await fetch(csvUrl)
-            if (!response.ok) {
-                setImportMessage('シートの取得に失敗しました（公開設定を確認してください）')
-                setTimeout(() => setImportMessage(null), 3500)
-                return
-            }
-
-            const text = await response.text()
-            const { tasks, errors } = parseCsv(text)
-
-            if (tasks.length > 0) {
-                onImportCsv(tasks)
-                setImportMessage(`${tasks.length}件のタスクをGoogle Sheetsから追加しました`)
-                setIsSheetsPanelOpen(false)
-                setSheetsUrl('')
+            
+            if (response.status === 404) {
+                setImportMessage('スプレッドシートが見つかりません')
+            } else if (response.status === 403) {
+                setImportMessage('アクセス権限がありません（共有設定を確認してください）')
+            } else if (!response.ok) {
+                setImportMessage(`エラー: HTTP ${response.status}`)
             } else {
-                setImportMessage('取り込めるタスクがありません（列名を確認してください）')
-            }
+                const text = await response.text()
+                const { tasks, errors } = parseCsv(text)
 
-            if (errors.length > 0) {
-                console.warn('Google Sheets import warnings:', errors)
+                if (tasks.length > 0) {
+                    onImportCsv(tasks)
+                    setImportMessage(`${tasks.length}件のタスクをGoogle Sheetsから追加しました`)
+                    setIsSheetsPanelOpen(false)
+                    setSheetsUrl('')
+                } else {
+                    setImportMessage('取り込めるタスクがありません（列名を確認してください）')
+                }
+
+                if (errors.length > 0) {
+                    console.warn('Google Sheets import warnings:', errors)
+                }
             }
 
             setTimeout(() => setImportMessage(null), 3500)
         } catch (error) {
             console.error('Failed to import Google Sheets:', error)
-            setImportMessage('取得に失敗しました。ネットワークまたは公開設定を確認してください')
+            if (error instanceof TypeError) {
+                setImportMessage('ネットワークエラー：インターネット接続を確認してください')
+            } else {
+                setImportMessage('取得に失敗しました。ネットワークまたは公開設定を確認してください')
+            }
             setTimeout(() => setImportMessage(null), 3500)
         } finally {
             setIsImportingFromUrl(false)

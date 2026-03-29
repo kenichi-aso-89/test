@@ -11,10 +11,7 @@ const extractNumericId = (id: string): number => {
 }
 
 const normalizeTaskIds = (loadedTasks: Task[]): Task[] => {
-    return loadedTasks.map((task, index) => ({
-        ...task,
-        id: (index + 1).toString(),
-    }))
+    return loadedTasks
 }
 
 const getNextUniqueId = (start: number, tasks: Task[]): number => {
@@ -175,16 +172,15 @@ export function useTaskManager() {
     }
 
     const addMemo = (taskId: string, text: string) => {
-        updateTask(taskId, {
-            memos: [
-                ...(tasks.find((t) => t.id === taskId)?.memos ?? []),
-                {
-                    id: Date.now().toString(),
-                    text,
-                    createdAt: new Date().toISOString(),
-                }
-            ]
-        })
+        const task = tasks.find((t) => t.id === taskId)
+        if (!task) return
+        
+        const newMemo = {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            text,
+            createdAt: new Date().toISOString(),
+        }
+        updateTask(taskId, { memos: [...task.memos, newMemo] })
     }
 
     const removeMemo = (taskId: string, memoId: string) => {
