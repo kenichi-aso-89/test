@@ -1,0 +1,44 @@
+.task-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.task-stats {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--secondary-color);
+    border-radius: 8px;
+    border-left: 4px solid #646cff;
+}
+
+.task-stats p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+}
+
+@media (prefers-color-scheme: light) {
+    .task-stats p {
+        color: rgba(33, 53, 71, 0.8);
+    }
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.1rem;
+}
+
+@media (prefers-color-scheme: light) {
+    .empty-state {
+        color: rgba(33, 53, 71, 0.5);
+    }
+}
