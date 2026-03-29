@@ -1081,6 +1081,37 @@
   outline: none !important;
 }
 
+.detail-tags-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detail-tag-button {
+  padding: 6px 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #bbb;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: 'Noto Sans JP', system-ui, sans-serif;
+}
+
+.detail-tag-button:hover {
+  background: #333;
+  border-color: #555;
+  color: #d4d4d4;
+}
+
+.detail-tag-button.active {
+  background: #0078d4;
+  border-color: #0078d4;
+  color: #fff;
+}
+
 /* Time Picker */
 .detail-time-picker-trigger {
   width: 100%;

@@ -35,24 +35,21 @@ export function TaskDetailModal({
     idPrefix,
 }: TaskDetailModalProps) {
     const [memoInput, setMemoInput] = useState('')
-    const [tagsInput, setTagsInput] = useState(task.tags.join('; '))
     const displayId = /^\d+$/.test(task.id) ? `${idPrefix}${task.id}` : task.id
 
     const handleUpdateField = <K extends keyof Task>(field: K, value: Task[K]) => {
         onUpdateTask(task.id, { [field]: value })
     }
 
-    const handleTagsChange = (input: string) => {
-        setTagsInput(input)
-        const newTags = input
-            .split(/[;,/]/)
-            .map((t) => t.trim())
-            .filter((t): t is TaskTag => {
-                const validTags: TaskTag[] = ['Mail', 'Office', 'Meeting', 'PC', 'Home']
-                return t.length > 0 && validTags.includes(t as TaskTag)
-            })
+    // タグトグル関数
+    const toggleTag = (tag: TaskTag) => {
+        const newTags = task.tags.includes(tag)
+            ? task.tags.filter((t) => t !== tag)
+            : [...task.tags, tag]
         handleUpdateField('tags', newTags)
     }
+
+    const availableTags: TaskTag[] = ['Mail', 'Office', 'Meeting', 'PC', 'Home']
 
     // 時間ピッカー用のヘルパー関数
     const generateTimeOptions = (): string[] => {
@@ -256,21 +253,16 @@ export function TaskDetailModal({
                     {/* タグ */}
                     <section className="detail-section">
                         <h3 className="detail-section-title">タグ</h3>
-                        <div className="detail-tags-input-wrapper">
-                            <input
-                                type="text"
-                                value={tagsInput}
-                                onChange={(e) => handleTagsChange(e.target.value)}
-                                placeholder="タグをセミコロン区切りで入力（Mail, Office, Meeting, PC, Home）"
-                                className="detail-tags-input"
-                            />
-                            {task.tags.length > 0 && (
-                                <div className="detail-tags">
-                                    {task.tags.map((tag) => (
-                                        <span key={tag} className="detail-tag">{tag}</span>
-                                    ))}
-                                </div>
-                            )}
+                        <div className="detail-tags-selection">
+                            {availableTags.map((tag) => (
+                                <button
+                                    key={tag}
+                                    onClick={() => toggleTag(tag)}
+                                    className={`detail-tag-button ${task.tags.includes(tag) ? 'active' : ''}`}
+                                >
+                                    {tag}
+                                </button>
+                            ))}
                         </div>
                     </section>
 
