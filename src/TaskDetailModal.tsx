@@ -59,13 +59,13 @@ export function TaskDetailModal({
             className="modal-overlay"
             role="dialog"
             aria-modal="true"
-            aria-label="タスク詳細"
+            aria-labelledby="task-detail-title"
             onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
         >
             <div className="modal-panel modal-panel-detail">
                 <div className="modal-header">
                     <div>
-                        <h2 className="modal-title">{task.title}</h2>
+                        <h2 id="task-detail-title" className="modal-title">{task.title}</h2>
                         <span className="modal-subtitle">{displayId}</span>
                     </div>
                     <button

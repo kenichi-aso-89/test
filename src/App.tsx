@@ -23,7 +23,10 @@ function App() {
         addTask, addTasksBulk, updateTaskStatus, toggleStar, addMemo, removeMemo, deleteTask,
     } = useTaskManager()
 
-    const selectedTask = tasks.find((t) => t.id === selectedTaskId) ?? null
+    const selectedTask = useMemo(
+        () => tasks.find((t) => t.id === selectedTaskId) ?? null,
+        [tasks, selectedTaskId]
+    )
 
     const filteredTasks = useMemo(() => {
         let result = tasks

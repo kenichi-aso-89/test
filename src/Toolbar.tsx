@@ -38,6 +38,22 @@ const validWorkTypes: WorkType[] = ['検証', 'コード生成', '環境整備']
 const validTags: TaskTag[] = ['Mail', 'Office', 'Meeting', 'PC', 'Home']
 const validSections: TaskSection[] = ['午前', '午後', '終日']
 
+const headerMapping = {
+    title: ['タイトル', 'title'],
+    description: ['説明', 'description'],
+    status: ['ステータス', 'status'],
+    workType: ['作業内容', 'worktype', '作業'],
+    tags: ['タグ', 'tags'],
+    minutes: ['見積時間', 'minutes', '時間'],
+    start: ['開始', 'start'],
+    end: ['終了', 'end'],
+    section: ['セクション', 'section'],
+}
+
+const findColumnIndex = (header: string[], names: string[]): number => {
+    return header.findIndex((h) => names.includes(h))
+}
+
 function parseCsvLine(line: string): string[] {
     const result: string[] = []
     let current = ''
@@ -70,25 +86,24 @@ function parseCsvLine(line: string): string[] {
 
 function parseCsv(text: string) {
     const allLines = text.split(/\r?\n/)
-    const lines = allLines.filter((l) => {
-        const trimmed = l.trim()
-        return trimmed.length > 0
-    })
+    const lineWithRowMap = allLines
+        .map((line, idx) => ({ line, originalRow: idx + 1 }))
+        .filter((item) => item.line.trim().length > 0)
     
-    if (lines.length < 2) return { tasks: [], errors: ['ヘッダーとデータが必要です'] }
+    if (lineWithRowMap.length < 2) return { tasks: [], errors: ['ヘッダーとデータが必要です'] }
 
-    const header = parseCsvLine(lines[0]).map((h) => h.toLowerCase().trim())
-    const titleIdx = header.findIndex((h) => h === 'タイトル' || h === 'title')
+    const header = parseCsvLine(lineWithRowMap[0].line).map((h) => h.toLowerCase().trim())
+    const titleIdx = findColumnIndex(header, headerMapping.title)
     if (titleIdx === -1) return { tasks: [], errors: ['「タイトル」列が見つかりません'] }
 
-    const descIdx = header.findIndex((h) => h === '説明' || h === 'description')
-    const statusIdx = header.findIndex((h) => h === 'ステータス' || h === 'status')
-    const workTypeIdx = header.findIndex((h) => h === '作業内容' || h === 'worktype' || h === '作業')
-    const tagsIdx = header.findIndex((h) => h === 'タグ' || h === 'tags')
-    const minutesIdx = header.findIndex((h) => h === '見積時間' || h === 'minutes' || h === '時間')
-    const startIdx = header.findIndex((h) => h === '開始' || h === 'start')
-    const endIdx = header.findIndex((h) => h === '終了' || h === 'end')
-    const sectionIdx = header.findIndex((h) => h === 'セクション' || h === 'section')
+    const descIdx = findColumnIndex(header, headerMapping.description)
+    const statusIdx = findColumnIndex(header, headerMapping.status)
+    const workTypeIdx = findColumnIndex(header, headerMapping.workType)
+    const tagsIdx = findColumnIndex(header, headerMapping.tags)
+    const minutesIdx = findColumnIndex(header, headerMapping.minutes)
+    const startIdx = findColumnIndex(header, headerMapping.start)
+    const endIdx = findColumnIndex(header, headerMapping.end)
+    const sectionIdx = findColumnIndex(header, headerMapping.section)
 
     const tasks: Array<{
         title: string; description: string; status: TaskStatus; workType: WorkType
@@ -97,11 +112,12 @@ function parseCsv(text: string) {
     }> = []
     const errors: Array<{ row: number; message: string }> = []
 
-    for (let i = 1; i < lines.length; i++) {
-        const cols = parseCsvLine(lines[i])
+    for (let i = 1; i < lineWithRowMap.length; i++) {
+        const cols = parseCsvLine(lineWithRowMap[i].line)
+        const originalRow = lineWithRowMap[i].originalRow
         const title = cols[titleIdx]?.trim()
         if (!title) { 
-            errors.push({ row: i + 1, message: 'タイトルが空です' })
+            errors.push({ row: originalRow, message: 'タイトルが空です' })
             continue 
         }
 
@@ -110,7 +126,7 @@ function parseCsv(text: string) {
             ? rawStatus as TaskStatus : '未着手'
         
         if (rawStatus && !validStatuses.includes(rawStatus as TaskStatus)) {
-            errors.push({ row: i + 1, message: `無効なステータス: "${rawStatus}" → "未着手"に自動変換` })
+            errors.push({ row: originalRow, message: `無効なステータス: "${rawStatus}" → "未着手"に自動変換` })
         }
 
         const rawWorkType = workTypeIdx >= 0 ? cols[workTypeIdx]?.trim() : ''
@@ -118,7 +134,7 @@ function parseCsv(text: string) {
             ? rawWorkType as WorkType : 'コード生成'
         
         if (rawWorkType && !validWorkTypes.includes(rawWorkType as WorkType)) {
-            errors.push({ row: i + 1, message: `無効な作業内容: "${rawWorkType}" → "コード生成"に自動変換` })
+            errors.push({ row: originalRow, message: `無効な作業内容: "${rawWorkType}" → "コード生成"に自動変換` })
         }
 
         const rawTags = tagsIdx >= 0 ? cols[tagsIdx]?.trim() : ''
@@ -130,7 +146,7 @@ function parseCsv(text: string) {
         const estimatedMinutes = rawMinutes ? parseInt(rawMinutes, 10) || null : null
         
         if (rawMinutes && isNaN(parseInt(rawMinutes, 10))) {
-            errors.push({ row: i + 1, message: `無効な見積時間: "${rawMinutes}" → スキップ` })
+            errors.push({ row: originalRow, message: `無効な見積時間: "${rawMinutes}" → スキップ` })
         }
 
         const rawSection = sectionIdx >= 0 ? cols[sectionIdx]?.trim() : ''
@@ -138,7 +154,7 @@ function parseCsv(text: string) {
             ? rawSection as TaskSection : '終日'
         
         if (rawSection && !validSections.includes(rawSection as TaskSection)) {
-            errors.push({ row: i + 1, message: `無効なセクション: "${rawSection}" → "終日"に自動変換` })
+            errors.push({ row: originalRow, message: `無効なセクション: "${rawSection}" → "終日"に自動変換` })
         }
 
         tasks.push({

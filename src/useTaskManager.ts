@@ -10,10 +10,6 @@ const extractNumericId = (id: string): number => {
     return matched ? parseInt(matched[1], 10) : 0
 }
 
-const normalizeTaskIds = (loadedTasks: Task[]): Task[] => {
-    return loadedTasks
-}
-
 const getNextUniqueId = (start: number, tasks: Task[]): number => {
     const used = new Set(tasks.map((task) => extractNumericId(task.id)).filter((num) => num > 0))
     let candidate = Math.max(1, start)
@@ -60,9 +56,8 @@ export function useTaskManager() {
             if (stored) {
                 const parsedTasks = JSON.parse(stored) as Record<string, unknown>[]
                 const migratedTasks = parsedTasks.map(migrateTask)
-                const normalizedTasks = normalizeTaskIds(migratedTasks)
-                setTasks(normalizedTasks)
-                const maxId = normalizedTasks.reduce((max: number, task: Task) => Math.max(max, extractNumericId(task.id)), 0)
+                setTasks(migratedTasks)
+                const maxId = migratedTasks.reduce((max: number, task: Task) => Math.max(max, extractNumericId(task.id)), 0)
                 setNextId(maxId + 1)
             }
         } catch (error) {
