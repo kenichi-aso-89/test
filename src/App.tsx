@@ -11,8 +11,8 @@ function App() {
     return (
       <div className="app-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <h1 className="app-title">タスク管理</h1>
-          <p style={{ color: '#263448', fontSize: '0.75rem', letterSpacing: '0.2em', marginTop: '8px' }}>読み込み中...</p>
+          <h1 className="app-title">Task Board</h1>
+          <p style={{ color: '#505860', fontSize: '0.75rem', letterSpacing: '0.2em', marginTop: '8px' }}>Loading...</p>
         </div>
       </div>
     )
@@ -25,19 +25,19 @@ function App() {
         <div style={{
           position: 'absolute', top: '-20%', left: '-12%',
           width: '55%', height: '55%',
-          background: 'radial-gradient(circle at center, rgba(29,78,216,0.13) 0%, transparent 70%)',
+          background: 'radial-gradient(circle at center, rgba(120,120,130,0.1) 0%, transparent 70%)',
           filter: 'blur(80px)',
         }} />
         <div style={{
           position: 'absolute', bottom: '-15%', right: '-8%',
           width: '45%', height: '50%',
-          background: 'radial-gradient(circle at center, rgba(5,150,105,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle at center, rgba(100,110,105,0.07) 0%, transparent 70%)',
           filter: 'blur(80px)',
         }} />
         <div style={{
           position: 'absolute', top: '35%', right: '20%',
           width: '30%', height: '35%',
-          background: 'radial-gradient(circle at center, rgba(67,56,202,0.07) 0%, transparent 70%)',
+          background: 'radial-gradient(circle at center, rgba(90,90,100,0.06) 0%, transparent 70%)',
           filter: 'blur(60px)',
         }} />
       </div>
