@@ -20,7 +20,7 @@ function App() {
 
     const {
         tasks, idPrefix, setIdPrefix, nextId, isLoading,
-        addTask, addTasksBulk, updateTaskStatus, toggleStar, addMemo, removeMemo, deleteTask,
+        addTask, addTasksBulk, updateTask, updateTaskStatus, toggleStar, addMemo, removeMemo, deleteTask,
     } = useTaskManager()
 
     const selectedTask = useMemo(
@@ -159,6 +159,7 @@ function App() {
                     task={selectedTask}
                     onClose={() => setSelectedTaskId(null)}
                     onTaskStatusChange={updateTaskStatus}
+                    onUpdateTask={updateTask}
                     onAddMemo={addMemo}
                     onRemoveMemo={removeMemo}
                     idPrefix={idPrefix}

@@ -169,7 +169,7 @@ export function useTaskManager() {
     const addMemo = (taskId: string, text: string) => {
         const task = tasks.find((t) => t.id === taskId)
         if (!task) return
-        
+
         const newMemo = {
             id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
             text,

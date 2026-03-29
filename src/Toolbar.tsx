@@ -89,7 +89,7 @@ function parseCsv(text: string) {
     const lineWithRowMap = allLines
         .map((line, idx) => ({ line, originalRow: idx + 1 }))
         .filter((item) => item.line.trim().length > 0)
-    
+
     if (lineWithRowMap.length < 2) return { tasks: [], errors: ['ヘッダーとデータが必要です'] }
 
     const header = parseCsvLine(lineWithRowMap[0].line).map((h) => h.toLowerCase().trim())
@@ -116,15 +116,15 @@ function parseCsv(text: string) {
         const cols = parseCsvLine(lineWithRowMap[i].line)
         const originalRow = lineWithRowMap[i].originalRow
         const title = cols[titleIdx]?.trim()
-        if (!title) { 
+        if (!title) {
             errors.push({ row: originalRow, message: 'タイトルが空です' })
-            continue 
+            continue
         }
 
         const rawStatus = statusIdx >= 0 ? cols[statusIdx]?.trim() : ''
         const status: TaskStatus = validStatuses.includes(rawStatus as TaskStatus)
             ? rawStatus as TaskStatus : '未着手'
-        
+
         if (rawStatus && !validStatuses.includes(rawStatus as TaskStatus)) {
             errors.push({ row: originalRow, message: `無効なステータス: "${rawStatus}" → "未着手"に自動変換` })
         }
@@ -132,7 +132,7 @@ function parseCsv(text: string) {
         const rawWorkType = workTypeIdx >= 0 ? cols[workTypeIdx]?.trim() : ''
         const workType: WorkType = validWorkTypes.includes(rawWorkType as WorkType)
             ? rawWorkType as WorkType : 'コード生成'
-        
+
         if (rawWorkType && !validWorkTypes.includes(rawWorkType as WorkType)) {
             errors.push({ row: originalRow, message: `無効な作業内容: "${rawWorkType}" → "コード生成"に自動変換` })
         }
@@ -144,7 +144,7 @@ function parseCsv(text: string) {
 
         const rawMinutes = minutesIdx >= 0 ? cols[minutesIdx]?.trim() : ''
         const estimatedMinutes = rawMinutes ? parseInt(rawMinutes, 10) || null : null
-        
+
         if (rawMinutes && isNaN(parseInt(rawMinutes, 10))) {
             errors.push({ row: originalRow, message: `無効な見積時間: "${rawMinutes}" → スキップ` })
         }
@@ -152,7 +152,7 @@ function parseCsv(text: string) {
         const rawSection = sectionIdx >= 0 ? cols[sectionIdx]?.trim() : ''
         const section: TaskSection = validSections.includes(rawSection as TaskSection)
             ? rawSection as TaskSection : '終日'
-        
+
         if (rawSection && !validSections.includes(rawSection as TaskSection)) {
             errors.push({ row: originalRow, message: `無効なセクション: "${rawSection}" → "終日"に自動変換` })
         }
@@ -267,7 +267,7 @@ export function Toolbar({
         setIsImportingFromUrl(true)
         try {
             const response = await fetch(csvUrl)
-            
+
             if (response.status === 404) {
                 setImportMessage('スプレッドシートが見つかりません')
             } else if (response.status === 403) {

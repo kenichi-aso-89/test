@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { type Task, type TaskStatus } from './types'
+import { type Task, type TaskStatus, type WorkType, type TaskSection, type TaskTag } from './types'
 import { X, Plus, Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
@@ -14,6 +14,7 @@ interface TaskDetailModalProps {
     task: Task
     onClose: () => void
     onTaskStatusChange: (id: string, status: TaskStatus) => void
+    onUpdateTask: (id: string, updates: Partial<Task>) => void
     onAddMemo: (taskId: string, text: string) => void
     onRemoveMemo: (taskId: string, memoId: string) => void
     idPrefix: string
@@ -23,12 +24,31 @@ export function TaskDetailModal({
     task,
     onClose,
     onTaskStatusChange,
+    onUpdateTask,
     onAddMemo,
     onRemoveMemo,
     idPrefix,
 }: TaskDetailModalProps) {
     const [memoInput, setMemoInput] = useState('')
     const displayId = /^\d+$/.test(task.id) ? `${idPrefix}${task.id}` : task.id
+
+    // タグを表示用の文字列に変換（セミコロン区切り）
+    const tagsString = task.tags.join('; ')
+
+    const handleUpdateField = <K extends keyof Task>(field: K, value: Task[K]) => {
+        onUpdateTask(task.id, { [field]: value })
+    }
+
+    const handleTagsChange = (input: string) => {
+        const newTags = input
+            .split(/[;,/]/)
+            .map((t) => t.trim())
+            .filter((t): t is TaskTag => {
+                const validTags: TaskTag[] = ['Mail', 'Office', 'Meeting', 'PC', 'Home']
+                return validTags.includes(t as TaskTag)
+            })
+        handleUpdateField('tags', newTags)
+    }
 
     const handleAddMemo = () => {
         if (memoInput.trim()) {
@@ -64,8 +84,13 @@ export function TaskDetailModal({
         >
             <div className="modal-panel modal-panel-detail">
                 <div className="modal-header">
-                    <div>
-                        <h2 id="task-detail-title" className="modal-title">{task.title}</h2>
+                    <div className="modal-header-title">
+                        <Input
+                            value={task.title}
+                            onChange={(e) => handleUpdateField('title', e.target.value)}
+                            className="modal-title-input"
+                            placeholder="タスク名"
+                        />
                         <span className="modal-subtitle">{displayId}</span>
                     </div>
                     <button
@@ -100,11 +125,35 @@ export function TaskDetailModal({
                             </div>
                             <div className="detail-item">
                                 <label className="detail-label">作業内容</label>
-                                <div className="detail-value">{task.workType}</div>
+                                <Select
+                                    value={task.workType}
+                                    onValueChange={(v) => handleUpdateField('workType', v as WorkType)}
+                                >
+                                    <SelectTrigger className="detail-select-trigger">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="toolbar-dropdown">
+                                        <SelectItem value="検証">検証</SelectItem>
+                                        <SelectItem value="コード生成">コード生成</SelectItem>
+                                        <SelectItem value="環境整備">環境整備</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="detail-item">
                                 <label className="detail-label">セクション</label>
-                                <div className="detail-value">{task.section}</div>
+                                <Select
+                                    value={task.section}
+                                    onValueChange={(v) => handleUpdateField('section', v as TaskSection)}
+                                >
+                                    <SelectTrigger className="detail-select-trigger">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="toolbar-dropdown">
+                                        <SelectItem value="午前">午前</SelectItem>
+                                        <SelectItem value="午後">午後</SelectItem>
+                                        <SelectItem value="終日">終日</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
                     </section>
@@ -112,9 +161,13 @@ export function TaskDetailModal({
                     {/* 説明 */}
                     <section className="detail-section">
                         <h3 className="detail-section-title">説明</h3>
-                        <div className="detail-value-text">
-                            {task.description || '（説明なし）'}
-                        </div>
+                        <textarea
+                            value={task.description}
+                            onChange={(e) => handleUpdateField('description', e.target.value)}
+                            className="detail-textarea"
+                            placeholder="タスクの説明を入力"
+                            rows={3}
+                        />
                     </section>
 
                     {/* スケジュール */}
@@ -122,37 +175,60 @@ export function TaskDetailModal({
                         <h3 className="detail-section-title">スケジュール</h3>
                         <div className="detail-grid">
                             <div className="detail-item">
-                                <label className="detail-label">見積時間</label>
-                                <div className="detail-value">
-                                    {task.estimatedMinutes ? `${task.estimatedMinutes}分` : '未設定'}
-                                </div>
+                                <label className="detail-label">見積時間（分）</label>
+                                <Input
+                                    type="number"
+                                    value={task.estimatedMinutes ?? ''}
+                                    onChange={(e) => {
+                                        const val = e.target.value ? parseInt(e.target.value, 10) : null
+                                        handleUpdateField('estimatedMinutes', val)
+                                    }}
+                                    placeholder="分数"
+                                    className="detail-input"
+                                />
                             </div>
                             <div className="detail-item">
                                 <label className="detail-label">開始時刻</label>
-                                <div className="detail-value">
-                                    {task.scheduledStart || '未設定'}
-                                </div>
+                                <Input
+                                    type="text"
+                                    value={task.scheduledStart ?? ''}
+                                    onChange={(e) => handleUpdateField('scheduledStart', e.target.value || null)}
+                                    placeholder="HH:MM"
+                                    className="detail-input"
+                                />
                             </div>
                             <div className="detail-item">
                                 <label className="detail-label">終了時刻</label>
-                                <div className="detail-value">
-                                    {task.scheduledEnd || '未設定'}
-                                </div>
+                                <Input
+                                    type="text"
+                                    value={task.scheduledEnd ?? ''}
+                                    onChange={(e) => handleUpdateField('scheduledEnd', e.target.value || null)}
+                                    placeholder="HH:MM"
+                                    className="detail-input"
+                                />
                             </div>
                         </div>
                     </section>
 
                     {/* タグ */}
-                    {task.tags.length > 0 && (
-                        <section className="detail-section">
-                            <h3 className="detail-section-title">タグ</h3>
-                            <div className="detail-tags">
-                                {task.tags.map((tag) => (
-                                    <span key={tag} className="detail-tag">{tag}</span>
-                                ))}
-                            </div>
-                        </section>
-                    )}
+                    <section className="detail-section">
+                        <h3 className="detail-section-title">タグ</h3>
+                        <div className="detail-tags-input-wrapper">
+                            <Input
+                                value={tagsString}
+                                onChange={(e) => handleTagsChange(e.target.value)}
+                                placeholder="タグをセミコロン区切りで入力（Mail, Office, Meeting, PC, Home）"
+                                className="detail-input"
+                            />
+                            {task.tags.length > 0 && (
+                                <div className="detail-tags">
+                                    {task.tags.map((tag) => (
+                                        <span key={tag} className="detail-tag">{tag}</span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </section>
 
                     {/* 日時情報 */}
                     <section className="detail-section">
