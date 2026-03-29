@@ -1,5 +1,14 @@
 import { type Task, type TaskStatus } from './types'
-import './TaskItem.css'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 
 interface TaskItemProps {
     task: Task
@@ -24,57 +33,77 @@ export function TaskItem({ task, onTaskStatusChange, onTaskDelete }: TaskItemPro
     const getStatusColor = (status: TaskStatus) => {
         switch (status) {
             case '未着手':
-                return 'status-pending'
+                return 'bg-amber-500/20 text-amber-300 border-amber-500/30'
             case '進行中':
-                return 'status-inprogress'
+                return 'bg-blue-500/20 text-blue-300 border-blue-500/30'
             case '完了':
-                return 'status-completed'
+                return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
             default:
                 return ''
         }
     }
 
     return (
-        <div className="task-item">
-            <div className="task-id">ID: {task.id}</div>
-            <div className="task-content">
-                <div className="task-header">
-                    <h3 className="task-title">{task.title}</h3>
-                    <div className="task-metadata">
-                        <span className={`status-badge ${getStatusColor(task.status)}`}>
-                            {task.status}
-                        </span>
-                        <span className="work-type-badge">{task.workType}</span>
-                    </div>
-                </div>
-                {task.description && <p className="task-description">{task.description}</p>}
-                <div className="task-dates">
-                    <small>作成: {formatDate(task.createdAt)}</small>
-                    {task.completedAt && (
-                        <small>完了: {formatDate(task.completedAt)}</small>
-                    )}
+        <Card className="border-slate-700 bg-slate-800 p-6 hover:border-slate-600 transition-colors">
+            {/* ID */}
+            <div className="mb-4 flex items-start justify-between">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    ID: {task.id}
+                </span>
+                <div className="flex gap-2">
+                    <Badge variant="outline" className={`${getStatusColor(task.status)}`}>
+                        {task.status}
+                    </Badge>
+                    <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                        {task.workType}
+                    </Badge>
                 </div>
             </div>
-            <div className="task-actions">
-                <select
-                    value={task.status}
-                    onChange={(e) => onTaskStatusChange(task.id, e.target.value as TaskStatus)}
-                    className="status-select"
-                >
-                    {statusOptions.map((status) => (
-                        <option key={status} value={status}>
-                            {status}
-                        </option>
-                    ))}
-                </select>
-                <button
-                    className="btn-delete"
+
+            {/* Title */}
+            <h3 className="text-xl font-semibold text-white mb-2">{task.title}</h3>
+
+            {/* Description */}
+            {task.description && (
+                <p className="text-slate-300 text-sm mb-4">{task.description}</p>
+            )}
+
+            {/* Dates */}
+            <div className="text-xs text-slate-400 space-y-1 mb-6">
+                <div>作成: {formatDate(task.createdAt)}</div>
+                {task.completedAt && (
+                    <div>完了: {formatDate(task.completedAt)}</div>
+                )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 items-center">
+                <div className="flex-1">
+                    <Select
+                        value={task.status}
+                        onValueChange={(value) => onTaskStatusChange(task.id, value as TaskStatus)}
+                    >
+                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white text-sm">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-700 border-slate-600">
+                            {statusOptions.map((status) => (
+                                <SelectItem key={status} value={status} className="text-white">
+                                    {status}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <Button
+                    variant="destructive"
+                    size="sm"
                     onClick={() => onTaskDelete(task.id)}
-                    title="削除"
+                    className="bg-red-500 hover:bg-red-600"
                 >
                     ✕
-                </button>
+                </Button>
             </div>
-        </div>
+        </Card>
     )
 }
