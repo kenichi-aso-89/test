@@ -13,25 +13,25 @@ const views: Array<{
     icon: typeof Calendar
     countFn: (tasks: Task[]) => number
 }> = [
-    {
-        id: 'today',
-        label: '今日',
-        icon: Calendar,
-        countFn: (tasks) => tasks.filter((t) => t.status !== '完了').length,
-    },
-    {
-        id: 'starred',
-        label: 'スター',
-        icon: Star,
-        countFn: (tasks) => tasks.filter((t) => t.starred).length,
-    },
-    {
-        id: 'incomplete',
-        label: '未完了',
-        icon: AlertCircle,
-        countFn: (tasks) => tasks.filter((t) => t.status !== '完了').length,
-    },
-]
+        {
+            id: 'today',
+            label: '今日',
+            icon: Calendar,
+            countFn: (tasks) => tasks.filter((t) => t.status !== '完了').length,
+        },
+        {
+            id: 'starred',
+            label: 'スター',
+            icon: Star,
+            countFn: (tasks) => tasks.filter((t) => t.starred).length,
+        },
+        {
+            id: 'incomplete',
+            label: '未完了',
+            icon: AlertCircle,
+            countFn: (tasks) => tasks.filter((t) => t.status !== '完了').length,
+        },
+    ]
 
 export function Sidebar({ activeView, onViewChange, tasks }: SidebarProps) {
     return (

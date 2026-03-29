@@ -133,6 +133,44 @@ export function useTaskManager() {
         }
     }
 
+    const addTasksBulk = (
+        taskInputs: Array<{
+            title: string
+            description: string
+            status: TaskStatus
+            workType: WorkType
+            tags?: TaskTag[]
+            estimatedMinutes?: number | null
+            scheduledStart?: string | null
+            scheduledEnd?: string | null
+            section?: TaskSection
+        }>,
+    ) => {
+        setTasks((prevTasks) => {
+            let currentId = getNextUniqueId(nextId, prevTasks)
+            const newTasks: Task[] = taskInputs.map((input) => {
+                const task: Task = {
+                    id: currentId.toString(),
+                    title: input.title,
+                    description: input.description,
+                    status: input.status,
+                    workType: input.workType,
+                    createdAt: new Date().toISOString(),
+                    tags: input.tags ?? [],
+                    starred: false,
+                    estimatedMinutes: input.estimatedMinutes ?? null,
+                    scheduledStart: input.scheduledStart ?? null,
+                    scheduledEnd: input.scheduledEnd ?? null,
+                    section: input.section ?? '終日',
+                }
+                currentId++
+                return task
+            })
+            setNextId(currentId)
+            return [...newTasks, ...prevTasks]
+        })
+    }
+
     const deleteTask = (id: string) => {
         setTasks(tasks.filter((task) => task.id !== id))
     }
@@ -144,6 +182,7 @@ export function useTaskManager() {
         nextId,
         isLoading,
         addTask,
+        addTasksBulk,
         updateTask,
         updateTaskStatus,
         toggleStar,

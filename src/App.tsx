@@ -18,7 +18,7 @@ function App() {
 
     const {
         tasks, idPrefix, setIdPrefix, nextId, isLoading,
-        addTask, updateTaskStatus, toggleStar, deleteTask,
+        addTask, addTasksBulk, updateTaskStatus, toggleStar, deleteTask,
     } = useTaskManager()
 
     const filteredTasks = useMemo(() => {
@@ -86,6 +86,7 @@ function App() {
                     filterTag={filterTag}
                     onFilterTagChange={setFilterTag}
                     onCreateTask={() => setIsCreateModalOpen(true)}
+                    onImportCsv={addTasksBulk}
                 />
 
                 <div className="main-content">

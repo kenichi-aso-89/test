@@ -394,6 +394,35 @@
   background: #1a8ae8;
 }
 
+.toolbar-import-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #3c3c3c;
+  border: 1px solid #505050;
+  border-radius: 4px;
+  color: #d4d4d4;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: 'Noto Sans JP', system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.toolbar-import-btn:hover {
+  background: #484848;
+  border-color: #666;
+}
+
+.toolbar-import-message {
+  font-size: 0.72rem;
+  color: #10b981;
+  white-space: nowrap;
+  animation: fadeIn 0.2s ease-out;
+}
+
 /* ── Main Content ────────────────────────────────── */
 .main-content {
   flex: 1;
