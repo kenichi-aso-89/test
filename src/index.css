@@ -1081,6 +1081,93 @@
   outline: none !important;
 }
 
+/* Time Picker */
+.detail-time-picker-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1e1e1e;
+  border: 1px solid #404040;
+  color: #d4d4d4;
+  font-size: 0.8rem;
+  height: 32px;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+  font-family: 'Noto Sans JP', system-ui, sans-serif;
+  text-align: left;
+  justify-content: flex-start;
+  font-weight: 400;
+}
+
+.detail-time-picker-trigger:hover {
+  background: #252526;
+  border-color: #606060;
+}
+
+.detail-time-picker-popover {
+  width: 180px !important;
+  padding: 0 !important;
+  background: #1e1e1e !important;
+  border: 1px solid #404040 !important;
+}
+
+.detail-time-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.detail-time-picker-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  border-bottom: 1px solid #333;
+}
+
+.detail-time-option {
+  padding: 6px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #bbb;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.1s, color 0.1s;
+  font-family: monospace;
+  font-weight: 500;
+  text-align: center;
+}
+
+.detail-time-option:hover {
+  background: #2a2a2a;
+  color: #e0e0e0;
+}
+
+.detail-time-option.active {
+  background: #0078d4;
+  color: #fff;
+  border-color: #0078d4;
+}
+
+.detail-time-clear-btn {
+  color: #999 !important;
+  font-size: 0.7rem !important;
+  padding: 6px !important;
+  height: auto !important;
+  border-radius: 0 !important;
+}
+
+.detail-time-clear-btn:hover {
+  color: #d4d4d4 !important;
+  background: #2a2a2a !important;
+}
+
 .detail-add-memo-btn {
   display: flex;
   align-items: center;

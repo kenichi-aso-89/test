@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { type Task, type TaskStatus, type WorkType, type TaskSection, type TaskTag } from './types'
-import { X, Plus, Trash2 } from 'lucide-react'
+import { X, Plus, Trash2, Clock } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
     Select,
@@ -9,6 +9,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
 
 interface TaskDetailModalProps {
     task: Task
@@ -30,25 +35,69 @@ export function TaskDetailModal({
     idPrefix,
 }: TaskDetailModalProps) {
     const [memoInput, setMemoInput] = useState('')
+    const [tagsInput, setTagsInput] = useState(task.tags.join('; '))
     const displayId = /^\d+$/.test(task.id) ? `${idPrefix}${task.id}` : task.id
-
-    // タグを表示用の文字列に変換（セミコロン区切り）
-    const tagsString = task.tags.join('; ')
 
     const handleUpdateField = <K extends keyof Task>(field: K, value: Task[K]) => {
         onUpdateTask(task.id, { [field]: value })
     }
 
     const handleTagsChange = (input: string) => {
+        setTagsInput(input)
         const newTags = input
             .split(/[;,/]/)
             .map((t) => t.trim())
             .filter((t): t is TaskTag => {
                 const validTags: TaskTag[] = ['Mail', 'Office', 'Meeting', 'PC', 'Home']
-                return validTags.includes(t as TaskTag)
+                return t.length > 0 && validTags.includes(t as TaskTag)
             })
         handleUpdateField('tags', newTags)
     }
+
+    // 時間ピッカー用のヘルパー関数
+    const generateTimeOptions = (): string[] => {
+        const options: string[] = []
+        for (let h = 0; h < 24; h++) {
+            for (let m = 0; m < 60; m += 15) {
+                const hStr = String(h).padStart(2, '0')
+                const mStr = String(m).padStart(2, '0')
+                options.push(`${hStr}:${mStr}`)
+            }
+        }
+        return options
+    }
+
+    const timeOptions = generateTimeOptions()
+
+    const TimePickerButton = ({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) => (
+        <Popover>
+            <PopoverTrigger className="detail-time-picker-trigger">
+                <Clock size={14} />
+                <span>{value || '未設定'}</span>
+            </PopoverTrigger>
+            <PopoverContent className="detail-time-picker-popover" align="start">
+                <div className="detail-time-picker-container">
+                    <div className="detail-time-picker-scroll">
+                        {timeOptions.map((time) => (
+                            <button
+                                key={time}
+                                onClick={() => onChange(time)}
+                                className={`detail-time-option ${value === time ? 'active' : ''}`}
+                            >
+                                {time}
+                            </button>
+                        ))}
+                    </div>
+                    <button
+                        onClick={() => onChange(null)}
+                        className="detail-time-clear-btn"
+                    >
+                        クリア
+                    </button>
+                </div>
+            </PopoverContent>
+        </Popover>
+    )
 
     const handleAddMemo = () => {
         if (memoInput.trim()) {
@@ -189,22 +238,16 @@ export function TaskDetailModal({
                             </div>
                             <div className="detail-item">
                                 <label className="detail-label">開始時刻</label>
-                                <Input
-                                    type="text"
-                                    value={task.scheduledStart ?? ''}
-                                    onChange={(e) => handleUpdateField('scheduledStart', e.target.value || null)}
-                                    placeholder="HH:MM"
-                                    className="detail-input"
+                                <TimePickerButton
+                                    value={task.scheduledStart}
+                                    onChange={(v) => handleUpdateField('scheduledStart', v)}
                                 />
                             </div>
                             <div className="detail-item">
                                 <label className="detail-label">終了時刻</label>
-                                <Input
-                                    type="text"
-                                    value={task.scheduledEnd ?? ''}
-                                    onChange={(e) => handleUpdateField('scheduledEnd', e.target.value || null)}
-                                    placeholder="HH:MM"
-                                    className="detail-input"
+                                <TimePickerButton
+                                    value={task.scheduledEnd}
+                                    onChange={(v) => handleUpdateField('scheduledEnd', v)}
                                 />
                             </div>
                         </div>
@@ -216,7 +259,7 @@ export function TaskDetailModal({
                         <div className="detail-tags-input-wrapper">
                             <input
                                 type="text"
-                                value={tagsString}
+                                value={tagsInput}
                                 onChange={(e) => handleTagsChange(e.target.value)}
                                 placeholder="タグをセミコロン区切りで入力（Mail, Office, Meeting, PC, Home）"
                                 className="detail-tags-input"
