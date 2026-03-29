@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { type TaskStatus, type TaskTag, type TaskSection, type SidebarView } from './types'
 import { Sidebar } from './Sidebar'
 import { Toolbar } from './Toolbar'
@@ -17,6 +17,30 @@ function App() {
     const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all')
     const [filterTag, setFilterTag] = useState<TaskTag | 'all'>('all')
     const [collapsedSections, setCollapsedSections] = useState<Set<TaskSection>>(new Set())
+
+    useEffect(() => {
+        const root = document.documentElement
+        let scrollEndTimer: ReturnType<typeof setTimeout> | null = null
+
+        const onScroll = () => {
+            root.classList.add('is-scrolling')
+            if (scrollEndTimer) {
+                clearTimeout(scrollEndTimer)
+            }
+            scrollEndTimer = setTimeout(() => {
+                root.classList.remove('is-scrolling')
+            }, 260)
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true, capture: true })
+        return () => {
+            window.removeEventListener('scroll', onScroll, true)
+            if (scrollEndTimer) {
+                clearTimeout(scrollEndTimer)
+            }
+            root.classList.remove('is-scrolling')
+        }
+    }, [])
 
     const {
         tasks, idPrefix, setIdPrefix, nextId, isLoading,

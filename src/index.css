@@ -123,8 +123,24 @@
     @apply font-sans;
   }
 
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  ::selection {
+    background: #1a1d21;
+    color: #f2f4f6;
+  }
+
+  ::-moz-selection {
+    background: #1a1d21;
+    color: #f2f4f6;
+  }
+
   ::-webkit-scrollbar {
-    width: 4px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
@@ -132,12 +148,21 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(160, 170, 180, 0.2);
-    border-radius: 2px;
+    background: rgba(140, 150, 160, 0);
+    border-radius: 999px;
+    transition: background-color 0.22s ease;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(160, 170, 180, 0.4);
+  html.is-scrolling * {
+    scrollbar-color: rgba(140, 150, 160, 1) transparent;
+  }
+
+  html.is-scrolling *::-webkit-scrollbar-thumb {
+    background: rgba(140, 150, 160, 1);
+  }
+
+  html.is-scrolling *::-webkit-scrollbar-thumb:hover {
+    background: rgba(170, 180, 190, 1);
   }
 }
 
@@ -721,6 +746,36 @@
   align-items: center;
 }
 
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.modal-close-btn {
+  color: #999;
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  transition: color 0.1s, border-color 0.1s;
+  font-family: 'Noto Sans JP', system-ui, sans-serif;
+}
+
+.modal-close-btn:hover {
+  color: #e0e0e0;
+  border-color: #666;
+}
+
 /* ── Form ────────────────────────────────────────── */
 .task-form {
   display: flex;
@@ -875,7 +930,9 @@
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   padding: 0;
 }
 
@@ -884,6 +941,8 @@
   flex-direction: column;
   gap: 0;
   padding: 0;
+  overflow-y: auto;
+  max-height: calc(90vh - 66px);
 }
 
 .detail-section {
@@ -926,6 +985,12 @@
   gap: 4px;
 }
 
+.detail-item-inline {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+}
+
 .detail-label {
   font-size: 0.68rem;
   font-weight: 600;
@@ -936,6 +1001,10 @@
 .detail-value {
   font-size: 0.85rem;
   color: #d4d4d4;
+}
+
+.detail-value-inline {
+  font-variant-numeric: tabular-nums;
 }
 
 .detail-value-text {

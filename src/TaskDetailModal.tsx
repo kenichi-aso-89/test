@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { type MouseEvent, useRef, useState } from 'react'
 import { type Task, type TaskStatus, type WorkType, type TaskSection, type TaskTag } from './types'
 import { Plus, Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -30,6 +30,7 @@ export function TaskDetailModal({
     idPrefix,
 }: TaskDetailModalProps) {
     const [memoInput, setMemoInput] = useState('')
+    const shouldCloseOnMouseUpRef = useRef(false)
     const displayId = /^\d+$/.test(task.id) ? `${idPrefix}${task.id}` : task.id
 
     const handleUpdateField = <K extends keyof Task>(field: K, value: Task[K]) => {
@@ -101,11 +102,26 @@ export function TaskDetailModal({
         )
     }
 
+    const estimatedMinuteOptions = [
+        5, 10, 15, 20, 30, 45, 60, 75, 90, 120, 150, 180, 240,
+    ]
+
     const handleAddMemo = () => {
         if (memoInput.trim()) {
             onAddMemo(task.id, memoInput)
             setMemoInput('')
         }
+    }
+
+    const handleOverlayMouseDown = (e: MouseEvent<HTMLDivElement>) => {
+        shouldCloseOnMouseUpRef.current = e.target === e.currentTarget
+    }
+
+    const handleOverlayMouseUp = (e: MouseEvent<HTMLDivElement>) => {
+        if (shouldCloseOnMouseUpRef.current && e.target === e.currentTarget) {
+            onClose()
+        }
+        shouldCloseOnMouseUpRef.current = false
     }
 
     const handleRemoveMemo = (memoId: string) => {
@@ -131,7 +147,8 @@ export function TaskDetailModal({
             role="dialog"
             aria-modal="true"
             aria-labelledby="task-detail-title"
-            onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+            onMouseDown={handleOverlayMouseDown}
+            onMouseUp={handleOverlayMouseUp}
         >
             <div className="modal-panel modal-panel-detail">
                 <div className="modal-header-simple">
@@ -147,9 +164,9 @@ export function TaskDetailModal({
                     {/* ID フィールド */}
                     <section className="detail-section detail-section-top">
                         <div className="detail-grid">
-                            <div className="detail-item">
+                            <div className="detail-item detail-item-inline">
                                 <label className="detail-label">ID</label>
-                                <div className="detail-value">{displayId}</div>
+                                <div className="detail-value detail-value-inline">{displayId}</div>
                             </div>
                         </div>
                     </section>
@@ -226,16 +243,28 @@ export function TaskDetailModal({
                         <div className="detail-grid">
                             <div className="detail-item">
                                 <label className="detail-label">見積時間（分）</label>
-                                <Input
-                                    type="number"
-                                    value={task.estimatedMinutes ?? ''}
-                                    onChange={(e) => {
-                                        const val = e.target.value ? parseInt(e.target.value, 10) : null
-                                        handleUpdateField('estimatedMinutes', val)
+                                <Select
+                                    value={task.estimatedMinutes == null ? 'none' : String(task.estimatedMinutes)}
+                                    onValueChange={(v) => {
+                                        if (v === null || v === 'none') {
+                                            handleUpdateField('estimatedMinutes', null)
+                                            return
+                                        }
+                                        handleUpdateField('estimatedMinutes', parseInt(v, 10))
                                     }}
-                                    placeholder="分数"
-                                    className="detail-input"
-                                />
+                                >
+                                    <SelectTrigger className="detail-select-trigger">
+                                        <SelectValue placeholder="未設定" />
+                                    </SelectTrigger>
+                                    <SelectContent className="toolbar-dropdown">
+                                        <SelectItem value="none">未設定</SelectItem>
+                                        {estimatedMinuteOptions.map((minutes) => (
+                                            <SelectItem key={minutes} value={String(minutes)}>
+                                                {minutes}分
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="detail-item">
                                 <label className="detail-label">開始時刻</label>
