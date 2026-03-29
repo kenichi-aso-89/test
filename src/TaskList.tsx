@@ -1,101 +1,121 @@
 import { type Task, type TaskStatus } from './types'
 import { TaskItem } from './TaskItem'
-import { Card } from '@/components/ui/card'
 
 interface TaskListProps {
-    tasks: Task[]
-    onTaskStatusChange: (id: string, status: TaskStatus) => void
-    onTaskDelete: (id: string) => void
-    onCreateTask: () => void
-    idPrefix: string
+  tasks: Task[]
+  onTaskStatusChange: (id: string, status: TaskStatus) => void
+  onTaskDelete: (id: string) => void
+  onCreateTask: () => void
+  idPrefix: string
 }
 
-const statusColumns: Array<{ status: TaskStatus; title: string; tone: string }> = [
-    { status: '未着手', title: '未対応', tone: 'text-rose-300 bg-rose-500/15 border-rose-500/30' },
-    { status: '進行中', title: '処理中', tone: 'text-sky-300 bg-sky-500/15 border-sky-500/30' },
-    { status: '完了', title: '処理済み', tone: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30' },
+const columns: Array<{
+  status: TaskStatus
+  title: string
+  accent: string
+  glow: string
+  countBg: string
+  countColor: string
+}> = [
+  {
+    status: '未着手',
+    title: '未対応',
+    accent: 'linear-gradient(90deg, #f59e0b 0%, transparent 75%)',
+    glow: 'rgba(245,158,11,0.3)',
+    countBg: 'rgba(245,158,11,0.12)',
+    countColor: '#f59e0b',
+  },
+  {
+    status: '進行中',
+    title: '処理中',
+    accent: 'linear-gradient(90deg, #3b82f6 0%, transparent 75%)',
+    glow: 'rgba(59,130,246,0.3)',
+    countBg: 'rgba(59,130,246,0.12)',
+    countColor: '#3b82f6',
+  },
+  {
+    status: '完了',
+    title: '処理済み',
+    accent: 'linear-gradient(90deg, #10b981 0%, transparent 75%)',
+    glow: 'rgba(16,185,129,0.3)',
+    countBg: 'rgba(16,185,129,0.12)',
+    countColor: '#10b981',
+  },
 ]
 
-export function TaskList({
-    tasks,
-    onTaskStatusChange,
-    onTaskDelete,
-    onCreateTask,
-    idPrefix,
-}: TaskListProps) {
+export function TaskList({ tasks, onTaskStatusChange, onTaskDelete, onCreateTask, idPrefix }: TaskListProps) {
+  const completedCount  = tasks.filter(t => t.status === '完了').length
+  const inProgressCount = tasks.filter(t => t.status === '進行中').length
 
-    const completedCount = tasks.filter((t) => t.status === '完了').length
-    const inProgressCount = tasks.filter((t) => t.status === '進行中').length
-
-    return (
-        <div className="space-y-5">
-            <Card className="border-slate-700 bg-slate-900/95 p-5 shadow-[inset_0_1px_0_rgba(148,163,184,0.08)]">
-                <div className="flex flex-col gap-4">
-                    <div className="grid grid-cols-3 gap-4 text-center sm:w-auto">
-                        <div>
-                            <div className="text-2xl font-bold text-blue-400">{tasks.length}</div>
-                            <div className="text-xs text-slate-400">全タスク</div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-amber-400">{inProgressCount}</div>
-                            <div className="text-xs text-slate-400">進行中</div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-emerald-400">{completedCount}</div>
-                            <div className="text-xs text-slate-400">完了</div>
-                        </div>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={onCreateTask}
-                        className="rounded-md bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:from-blue-600 hover:to-emerald-600"
-                    >
-                        + タスクを追加
-                    </button>
-                </div>
-            </Card>
-
-            <div className="grid gap-4 lg:grid-cols-3">
-                {statusColumns.map((column) => {
-                    const columnTasks = tasks.filter((task) => task.status === column.status)
-
-                    return (
-                        <Card key={column.status} className="border-slate-700 bg-slate-900/90 p-4 shadow-[inset_0_1px_0_rgba(148,163,184,0.06)]">
-                            <div className="mb-4 flex items-center justify-between">
-                                <h3 className="text-sm font-semibold text-slate-200">{column.title}</h3>
-                                <span className={`rounded-full border px-2 py-0.5 text-xs ${column.tone}`}>
-                                    {columnTasks.length}
-                                </span>
-                            </div>
-
-                            {columnTasks.length === 0 ? (
-                                <div className="rounded-md border border-dashed border-slate-600/70 bg-slate-900/70 p-6 text-center text-sm text-slate-300">
-                                    タスクはありません
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {columnTasks.map((task) => (
-                                        <TaskItem
-                                            key={task.id}
-                                            task={task}
-                                            onTaskStatusChange={onTaskStatusChange}
-                                            onTaskDelete={onTaskDelete}
-                                            idPrefix={idPrefix}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </Card>
-                    )
-                })}
+  return (
+    <div>
+      {/* Stats + add button */}
+      <div className="stats-panel">
+        <div className="stats-group">
+          {[
+            { value: tasks.length,    label: '全タスク', color: '#c8d8f8' },
+            { value: inProgressCount, label: '進行中',   color: '#f59e0b' },
+            { value: completedCount,  label: '完了',     color: '#10b981' },
+          ].map(({ value, label, color }) => (
+            <div key={label} className="stat-item">
+              <div className="stat-value" style={{ color }}>{value}</div>
+              <div className="stat-label">{label}</div>
             </div>
-
-            {tasks.length === 0 && (
-                <Card className="border-slate-700 bg-slate-900/95 p-8 text-center">
-                    <p className="text-slate-400 text-lg">まだタスクがありません。ボタンから新規タスクを追加してください。</p>
-                </Card>
-            )}
+          ))}
         </div>
-    )
+
+        <button className="add-task-btn" onClick={onCreateTask}>
+          + タスクを追加
+        </button>
+      </div>
+
+      {/* Board */}
+      <div className="board-grid">
+        {columns.map(col => {
+          const colTasks = tasks.filter(t => t.status === col.status)
+          return (
+            <div key={col.status} className="column-panel">
+              {/* Accent line */}
+              <div className="column-accent" style={{ background: col.accent }} />
+
+              {/* Column header */}
+              <div className="column-header">
+                <span className="column-title">{col.title}</span>
+                <span
+                  className="column-count"
+                  style={{ background: col.countBg, color: col.countColor }}
+                >
+                  {colTasks.length}
+                </span>
+              </div>
+
+              {/* Tasks or empty */}
+              {colTasks.length === 0 ? (
+                <div className="column-empty">タスクはありません</div>
+              ) : (
+                <div className="column-tasks">
+                  {colTasks.map(task => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      onTaskStatusChange={onTaskStatusChange}
+                      onTaskDelete={onTaskDelete}
+                      idPrefix={idPrefix}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Global empty state */}
+      {tasks.length === 0 && (
+        <div className="board-empty">
+          まだタスクがありません。ボタンから新規タスクを追加してください。
+        </div>
+      )}
+    </div>
+  )
 }

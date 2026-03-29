@@ -1,160 +1,133 @@
 import { useState } from 'react'
 import { type TaskStatus, type WorkType } from './types'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface TaskFormProps {
-    onTaskAdd: (title: string, description: string, status: TaskStatus, workType: WorkType) => void
-    onSubmitted?: () => void
-    submitLabel?: string
-    withCard?: boolean
-    idPrefix?: string
-    onIdPrefixChange?: (value: string) => void
-    nextId?: number
+  onTaskAdd: (title: string, description: string, status: TaskStatus, workType: WorkType) => void
+  onSubmitted?: () => void
+  submitLabel?: string
+  withCard?: boolean
+  idPrefix?: string
+  onIdPrefixChange?: (value: string) => void
+  nextId?: number
 }
 
 export function TaskForm({
-    onTaskAdd,
-    onSubmitted,
-    submitLabel = 'タスクを追加',
-    withCard = true,
-    idPrefix,
-    onIdPrefixChange,
-    nextId,
+  onTaskAdd,
+  onSubmitted,
+  submitLabel = 'タスクを追加',
+  idPrefix,
+  onIdPrefixChange,
+  nextId,
 }: TaskFormProps) {
-    const [title, setTitle] = useState('')
-    const [description, setDescription] = useState('')
-    const [status, setStatus] = useState<TaskStatus>('未着手')
-    const [workType, setWorkType] = useState<WorkType>('コード生成')
+  const [title,       setTitle]       = useState('')
+  const [description, setDescription] = useState('')
+  const [status,      setStatus]      = useState<TaskStatus>('未着手')
+  const [workType,    setWorkType]    = useState<WorkType>('コード生成')
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (title.trim()) {
-            onTaskAdd(title, description, status, workType)
-            setTitle('')
-            setDescription('')
-            setStatus('未着手')
-            setWorkType('コード生成')
-            onSubmitted?.()
-        }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (title.trim()) {
+      onTaskAdd(title, description, status, workType)
+      setTitle('')
+      setDescription('')
+      setStatus('未着手')
+      setWorkType('コード生成')
+      onSubmitted?.()
     }
+  }
 
-    const formContent = (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            {/* ID Prefix */}
-            {typeof idPrefix === 'string' && onIdPrefixChange && typeof nextId === 'number' && (
-                <div className="space-y-2 rounded-md border border-slate-700/80 bg-slate-900/30 p-3">
-                    <div className="text-xs font-medium text-slate-300">ID</div>
-                    <div className="text-sm text-slate-400">次のID: <span className="font-semibold text-emerald-300">{`${idPrefix}${nextId}`}</span></div>
-                    <div className="space-y-1">
-                        <Label htmlFor="idPrefix" className="text-slate-300">
-                            プレフィックス
-                        </Label>
-                        <Input
-                            id="idPrefix"
-                            value={idPrefix}
-                            onChange={(e) => onIdPrefixChange(e.target.value)}
-                            placeholder="例: MARKETINGJP-"
-                            className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
-                        />
-                    </div>
-                </div>
-            )}
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-            {/* Title Input */}
-            <div className="space-y-2">
-                <Label htmlFor="title" className="text-slate-300">
-                    タスクタイトル <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                    id="title"
-                    placeholder="タスクを入力してください"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
-                />
-            </div>
+      {/* ID section */}
+      {typeof idPrefix === 'string' && onIdPrefixChange && typeof nextId === 'number' && (
+        <div className="form-section">
+          <div style={{ fontSize: '0.58rem', color: '#2e3f55', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '6px' }}>
+            次のID
+          </div>
+          <div className="form-id-preview">{`${idPrefix}${nextId}`}</div>
+          <label className="form-label" htmlFor="idPrefix">プレフィックス</label>
+          <Input
+            id="idPrefix"
+            value={idPrefix}
+            onChange={(e) => onIdPrefixChange(e.target.value)}
+            placeholder="例: MARKETINGJP-"
+            className="form-input"
+          />
+        </div>
+      )}
 
-            {/* Description Input */}
-            <div className="space-y-2">
-                <Label htmlFor="description" className="text-slate-300">
-                    説明 <span className="text-slate-500">(オプション)</span>
-                </Label>
-                <Input
-                    id="description"
-                    placeholder="タスクの説明を入力してください"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
-                />
-            </div>
+      {/* Title */}
+      <div>
+        <label className="form-label" htmlFor="title">
+          タスクタイトル <span style={{ color: '#ef4444' }}>*</span>
+        </label>
+        <Input
+          id="title"
+          placeholder="タスクを入力してください"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="form-input"
+        />
+      </div>
 
-            {/* Status and WorkType Selects */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {/* Status Select */}
-                <div className="space-y-2">
-                    <Label htmlFor="status" className="text-slate-300">
-                        ステータス
-                    </Label>
-                    <Select value={status} onValueChange={(value) => setStatus(value as TaskStatus)}>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-700 border-slate-600">
-                            <SelectItem value="未着手" className="text-white">未着手</SelectItem>
-                            <SelectItem value="進行中" className="text-white">進行中</SelectItem>
-                            <SelectItem value="完了" className="text-white">完了</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+      {/* Description */}
+      <div>
+        <label className="form-label" htmlFor="description">
+          説明 <span style={{ color: '#2e3f55' }}>(オプション)</span>
+        </label>
+        <Input
+          id="description"
+          placeholder="タスクの説明を入力してください"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="form-input"
+        />
+      </div>
 
-                {/* WorkType Select */}
-                <div className="space-y-2">
-                    <Label htmlFor="workType" className="text-slate-300">
-                        作業内容
-                    </Label>
-                    <Select value={workType} onValueChange={(value) => setWorkType(value as WorkType)}>
-                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-700 border-slate-600">
-                            <SelectItem value="検証" className="text-white">検証</SelectItem>
-                            <SelectItem value="コード生成" className="text-white">コード生成</SelectItem>
-                            <SelectItem value="環境整備" className="text-white">環境整備</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
+      {/* Status + WorkType */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div>
+          <label className="form-label">ステータス</label>
+          <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
+            <SelectTrigger className="form-select-trigger">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent style={{ background: '#0d1828', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}>
+              <SelectItem value="未着手" style={{ color: '#8fa8c8', fontSize: '0.85rem' }}>未着手</SelectItem>
+              <SelectItem value="進行中" style={{ color: '#8fa8c8', fontSize: '0.85rem' }}>進行中</SelectItem>
+              <SelectItem value="完了"   style={{ color: '#8fa8c8', fontSize: '0.85rem' }}>完了</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-            {/* Submit Button */}
-            <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600 text-white font-semibold py-2"
-            >
-                {submitLabel}
-            </Button>
-        </form>
-    )
+        <div>
+          <label className="form-label">作業内容</label>
+          <Select value={workType} onValueChange={(v) => setWorkType(v as WorkType)}>
+            <SelectTrigger className="form-select-trigger">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent style={{ background: '#0d1828', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}>
+              <SelectItem value="検証"      style={{ color: '#8fa8c8', fontSize: '0.85rem' }}>検証</SelectItem>
+              <SelectItem value="コード生成" style={{ color: '#8fa8c8', fontSize: '0.85rem' }}>コード生成</SelectItem>
+              <SelectItem value="環境整備"   style={{ color: '#8fa8c8', fontSize: '0.85rem' }}>環境整備</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-    if (!withCard) {
-        return formContent
-    }
-
-    return (
-        <Card className="border-slate-700 bg-slate-800">
-            <CardHeader>
-                <CardTitle className="text-white">新規タスク作成</CardTitle>
-            </CardHeader>
-            <CardContent>{formContent}</CardContent>
-        </Card>
-    )
+      {/* Submit */}
+      <button type="submit" className="form-submit-btn">
+        {submitLabel}
+      </button>
+    </form>
+  )
 }
