@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { type Task, type TaskStatus, type WorkType, type TaskSection, type TaskTag } from './types'
-import { X, Plus, Trash2, Clock } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
     Select,
@@ -9,11 +9,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover'
 
 interface TaskDetailModalProps {
     task: Task
@@ -51,50 +46,60 @@ export function TaskDetailModal({
 
     const availableTags: TaskTag[] = ['Mail', 'Office', 'Meeting', 'PC', 'Home']
 
-    // 時間ピッカー用のヘルパー関数
-    const generateTimeOptions = (): string[] => {
-        const options: string[] = []
-        for (let h = 0; h < 24; h++) {
-            for (let m = 0; m < 60; m += 15) {
-                const hStr = String(h).padStart(2, '0')
-                const mStr = String(m).padStart(2, '0')
-                options.push(`${hStr}:${mStr}`)
-            }
+    // 時間・分を分別して選択するコンポーネント
+    const TimePickerButton = ({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) => {
+        const [hours, minutes] = value ? value.split(':').map(Number) : [0, 0]
+
+        const handleHourChange = (h: string | null) => {
+            if (h === null) return
+            const newMinutes = String(minutes).padStart(2, '0')
+            onChange(`${h}:${newMinutes}`)
         }
-        return options
-    }
 
-    const timeOptions = generateTimeOptions()
+        const handleMinuteChange = (m: string | null) => {
+            if (m === null) return
+            const newHours = String(hours).padStart(2, '0')
+            onChange(`${newHours}:${m}`)
+        }
 
-    const TimePickerButton = ({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) => (
-        <Popover>
-            <PopoverTrigger className="detail-time-picker-trigger">
-                <Clock size={14} />
-                <span>{value || '未設定'}</span>
-            </PopoverTrigger>
-            <PopoverContent className="detail-time-picker-popover" align="start">
-                <div className="detail-time-picker-container">
-                    <div className="detail-time-picker-scroll">
-                        {timeOptions.map((time) => (
-                            <button
-                                key={time}
-                                onClick={() => onChange(time)}
-                                className={`detail-time-option ${value === time ? 'active' : ''}`}
-                            >
-                                {time}
-                            </button>
+        return (
+            <div className="detail-time-picker-selects">
+                <Select value={String(hours).padStart(2, '0')} onValueChange={handleHourChange}>
+                    <SelectTrigger className="detail-time-select">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="toolbar-dropdown">
+                        {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map((h) => (
+                            <SelectItem key={h} value={h}>
+                                {h}時
+                            </SelectItem>
                         ))}
-                    </div>
+                    </SelectContent>
+                </Select>
+                <Select value={String(minutes).padStart(2, '0')} onValueChange={handleMinuteChange}>
+                    <SelectTrigger className="detail-time-select">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="toolbar-dropdown">
+                        {['00', '15', '30', '45'].map((m) => (
+                            <SelectItem key={m} value={m}>
+                                {m}分
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {value && (
                     <button
                         onClick={() => onChange(null)}
                         className="detail-time-clear-btn"
+                        type="button"
                     >
                         クリア
                     </button>
-                </div>
-            </PopoverContent>
-        </Popover>
-    )
+                )}
+            </div>
+        )
+    }
 
     const handleAddMemo = () => {
         if (memoInput.trim()) {
@@ -129,28 +134,27 @@ export function TaskDetailModal({
             onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
         >
             <div className="modal-panel modal-panel-detail">
-                <div className="modal-header">
-                    <div className="modal-header-title">
-                        <Input
-                            value={task.title}
-                            onChange={(e) => handleUpdateField('title', e.target.value)}
-                            className="modal-title-input"
-                            placeholder="タスク名"
-                        />
-                        <span className="modal-subtitle">{displayId}</span>
-                    </div>
-                    <button
-                        type="button"
-                        className="modal-close-btn"
-                        onClick={onClose}
-                    >
-                        <X size={18} />
-                    </button>
+                <div className="modal-header-simple">
+                    <Input
+                        value={task.title}
+                        onChange={(e) => handleUpdateField('title', e.target.value)}
+                        className="modal-title-input"
+                        placeholder="タスク名"
+                    />
                 </div>
 
                 <div className="task-detail-content">
+                    {/* ID フィールド */}
+                    <section className="detail-section detail-section-top">
+                        <div className="detail-grid">
+                            <div className="detail-item">
+                                <label className="detail-label">ID</label>
+                                <div className="detail-value">{displayId}</div>
+                            </div>
+                        </div>
+                    </section>
                     {/* 基本情報 */}
-                    <section className="detail-section">
+                    <section className="detail-section detail-section-secondary">
                         <h3 className="detail-section-title">基本情報</h3>
                         <div className="detail-grid">
                             <div className="detail-item">

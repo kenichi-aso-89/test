@@ -714,34 +714,11 @@
   animation: scaleIn 0.15s ease-out;
 }
 
-.modal-header {
+.modal-header-simple {
+  padding: 0 0 0 0;
+  border-bottom: 1px solid #333;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.modal-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #e0e0e0;
-}
-
-.modal-close-btn {
-  color: #999;
-  background: transparent;
-  border: 1px solid #444;
-  border-radius: 4px;
-  padding: 4px 12px;
-  cursor: pointer;
-  font-size: 0.72rem;
-  transition: color 0.1s, border-color 0.1s;
-  font-family: 'Noto Sans JP', system-ui, sans-serif;
-}
-
-.modal-close-btn:hover {
-  color: #e0e0e0;
-  border-color: #666;
 }
 
 /* ── Form ────────────────────────────────────────── */
@@ -902,14 +879,6 @@
   padding: 0;
 }
 
-.modal-subtitle {
-  display: block;
-  font-size: 0.7rem;
-  color: #808080;
-  font-weight: 400;
-  margin-top: 2px;
-}
-
 .task-detail-content {
   display: flex;
   flex-direction: column;
@@ -920,6 +889,16 @@
 .detail-section {
   padding: 16px 24px;
   border-bottom: 1px solid #333;
+}
+
+.detail-section-top {
+  padding: 16px 24px;
+  border-bottom: 1px solid #333;
+  border-top: none;
+}
+
+.detail-section-secondary {
+  border-top: none;
 }
 
 .detail-section:last-child {
@@ -1025,10 +1004,11 @@
   color: #e0e0e0 !important;
   font-size: 0.95rem !important;
   font-weight: 600 !important;
-  border-radius: 4px !important;
-  padding: 8px 12px !important;
+  border-radius: 0 !important;
+  padding: 16px 24px !important;
   height: auto !important;
   font-family: 'Noto Sans JP', system-ui, sans-serif !important;
+  width: 100%;
 }
 
 .modal-title-input:focus {
@@ -1113,20 +1093,35 @@
 }
 
 /* Time Picker */
-.detail-time-picker-trigger {
+.detail-time-picker-selects {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
+}
+
+.detail-time-select {
+  background: #1e1e1e !important;
+  border: 1px solid #404040 !important;
+  color: #d4d4d4 !important;
+  font-size: 0.8rem !important;
+  height: 32px !important;
+  border-radius: 4px !important;
+  flex: 1;
+}
+
+.detail-time-picker-trigger {
   display: flex;
   align-items: center;
   gap: 6px;
   background: #1e1e1e;
   border: 1px solid #404040;
-  color: #d4d4d4;
-  font-size: 0.8rem;
-  height: 32px;
   border-radius: 4px;
-  padding: 4px 8px;
+  padding: 6px 8px;
+  color: #bbb;
   cursor: pointer;
-  transition: background 0.1s, border-color 0.1s;
+  font-size: 0.8rem;
+  transition: all 0.1s;
   font-family: 'Noto Sans JP', system-ui, sans-serif;
   text-align: left;
   justify-content: flex-start;
@@ -1188,15 +1183,22 @@
 
 .detail-time-clear-btn {
   color: #999 !important;
-  font-size: 0.7rem !important;
-  padding: 6px !important;
+  background: transparent !important;
+  border: 1px solid #444 !important;
+  padding: 6px 8px !important;
   height: auto !important;
-  border-radius: 0 !important;
+  border-radius: 3px !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+  font-family: 'Noto Sans JP', system-ui, sans-serif !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.1s;
 }
 
 .detail-time-clear-btn:hover {
-  color: #d4d4d4 !important;
-  background: #2a2a2a !important;
+  color: #e0e0e0 !important;
+  border-color: #666 !important;
 }
 
 .detail-add-memo-btn {
